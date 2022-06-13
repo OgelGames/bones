@@ -146,4 +146,5 @@ minetest.register_on_dieplayer(function(player)
 	else
 		meta:set_string("infotext", S("@1's bones", name))
 	end
+	log_death(bones_pos, name, "bones")
 end)
