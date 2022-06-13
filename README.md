@@ -8,6 +8,12 @@ A redo of the bones mod from Minetest Game.
 
 ![](screenshot.png)
 
+## Improvements from MTG
+
+- **Dynamically sized inventory** - To fit ALL your items.
+- **Better bone generation** - Always finds somewhere to place bones, 99% guaranteed.
+- **New textures** - More detailed and... well, that's about it.
+- **Custom sounds** - Because bones are not made of gravel.
 
 ## Dependencies
 
@@ -17,7 +23,7 @@ A redo of the bones mod from Minetest Game.
 
 ## Installation
 
-Download the [master branch](https://github.com/OgelGames/beacon/archive/master.zip) or the [latest release](https://github.com/OgelGames/beacon/releases), and follow [the usual installation steps](https://dev.minetest.net/Installing_Mods).
+Download the [master branch](https://github.com/OgelGames/bones/archive/master.zip) or the [latest release](https://github.com/OgelGames/bones/releases), and follow [the usual installation steps](https://dev.minetest.net/Installing_Mods).
 
 ## License
 
