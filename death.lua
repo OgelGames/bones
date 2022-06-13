@@ -11,7 +11,7 @@ local adjacent_positions = {
 
 local function can_replace(pos)
 	local node = minetest.get_node(pos)
-	if node.name == "air" node.name == "vacuum:vacuum" then
+	if node.name == "air" or node.name == "vacuum:vacuum" then
 		return true  -- Air and vacuum is always replaceable
 	end
 	local def = minetest.registered_nodes[node.name]
