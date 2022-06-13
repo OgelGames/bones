@@ -11,8 +11,8 @@ local adjacent_positions = {
 
 local function can_replace(pos)
 	local node = minetest.get_node(pos)
-	if node.name == "air" then
-		return true  -- Air is always replaceable
+	if node.name == "air" node.name == "vacuum:vacuum" then
+		return true  -- Air and vacuum is always replaceable
 	end
 	local def = minetest.registered_nodes[node.name]
 	if not def then
@@ -47,7 +47,7 @@ local function find_replaceable_pos(origin)
 	if can_replace(above) then
 		return above
 	end
-	return minetest.find_node_near(origin, 5, "air")
+	return minetest.find_node_near(origin, 5, {"air", "vacuum:vacuum"})
 end
 
 local function get_all_items(player)
