@@ -134,15 +134,15 @@ minetest.register_on_dieplayer(function(player)
 	end
 	-- Place bones
 	local param2 = minetest.dir_to_facedir(player:get_look_dir())
-	minetest.set_node(pos, {name = "bones:bones", param2 = param2})
-	local meta = minetest.get_meta(pos)
+	minetest.set_node(bones_pos, {name = "bones:bones", param2 = param2})
+	local meta = minetest.get_meta(bones_pos)
 	local inv = meta:get_inventory()
 	inv:set_size("main", #items)
 	inv:set_list("main", items)
 	if bones.share_time > 0 then
 		meta:set_string("infotext", S("@1's fresh bones", name))
 		meta:set_string("owner", name)
-		minetest.get_node_timer(pos):start(10)
+		minetest.get_node_timer(bones_pos):start(10)
 	else
 		meta:set_string("infotext", S("@1's bones", name))
 	end
