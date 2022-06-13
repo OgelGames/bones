@@ -24,7 +24,7 @@ local function can_replace(pos)
 	if def.liquidtype == "flowing" then
 		return true  -- Flowing liquid can be replaced because it will regenerate
 	end
-	if def.liquidtype == "source" and def.liquid_renewable then
+	if def.liquidtype == "source" and def.liquid_renewable ~= false then
 		-- Check if the source will regenerate
 		local sources = 0
 		for _,p in pairs(adjacent_positions) do
