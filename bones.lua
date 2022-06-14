@@ -32,15 +32,13 @@ minetest.register_node("bones:bones", {
 	end,
 	on_punch = function(pos, node, player)
 		local meta = minetest.get_meta(pos)
-		if meta:get_string("infotext") == "" then
+		local name = player:get_player_name()
+		if meta:get_string("infotext") == "" or not is_owner(pos, name) then
 			return
 		end
-		if not is_owner(pos, player:get_player_name()) then
-			return
-		end
+		-- Move as many items as possible to the player's inventory
 		local inv = meta:get_inventory()
 		local player_inv = player:get_inventory()
-		-- Move as many items as possible to the player's inventory
 		for i=1, inv:get_size("main") do
 			local stack = inv:get_stack("main", i)
 			if player_inv:room_for_item("main", stack) then
@@ -57,6 +55,8 @@ minetest.register_node("bones:bones", {
 			end
 			minetest.remove_node(pos)
 		end
+		-- Log the bone-taking
+		minetest.log("action", name.." takes items from bones at "..minetest.pos_to_string(pos))
 	end,
 	on_timer = function(pos, elapsed)
 		local meta = minetest.get_meta(pos)
