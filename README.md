@@ -12,6 +12,7 @@ A redo of the bones mod from Minetest Game.
 
 - **Dynamically sized inventory** - To fit ALL your items.
 - **Better bone generation** - Always finds somewhere to place bones, 99% guaranteed.
+- **Waypoints** - Bones are marked by a waypoint for some time.
 - **New textures** - More detailed and... well, that's about it.
 - **Custom sounds** - Because bones are not made of gravel.
 
