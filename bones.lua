@@ -2,7 +2,11 @@
 local S = minetest.get_translator("bones")
 
 local function is_owner(pos, name)
-	local owner = minetest.get_meta(pos):get_string("owner")
+	local meta = minetest.get_meta(pos)
+	if meta:get_int("time") >= bones.share_time then
+		return true
+	end
+	local owner = meta:get_string("owner")
 	if owner == "" or owner == name or minetest.check_player_privs(name, "protection_bypass") then
 		return true
 	end
@@ -61,12 +65,18 @@ minetest.register_node("bones:bones", {
 	on_timer = function(pos, elapsed)
 		local meta = minetest.get_meta(pos)
 		local t = meta:get_int("time") + elapsed
+		meta:set_int("time", t)
 		if t < bones.share_time then
-			meta:set_int("time", t)
 			return true
 		else
 			meta:set_string("infotext", S("@1's old bones", meta:get_string("owner")))
-			meta:set_string("owner", "")
+		end
+	end,
+	on_destruct = function(pos)
+		local name = minetest.get_meta(pos):get_string("owner")
+		local player = minetest.get_player_by_name(name)
+		if player then
+			bones.remove_waypoint(pos, player)
 		end
 	end,
 	on_blast = function() end,

@@ -3,6 +3,7 @@ bones = {
 	redo = true,
 	registered_inventories = {},
 	share_time = tonumber(minetest.settings:get("bones_share_time")) or 1200,
+	waypoint_time = tonumber(minetest.settings:get("bones_waypoint_time")) or 3600,
 	mode = minetest.settings:get("bones_mode") or "bones",
 	position_message = minetest.settings:get_bool("bones_position_message"),
 }
@@ -13,6 +14,7 @@ end
 
 local MP = minetest.get_modpath("bones")
 
+dofile(MP.."/waypoints.lua")
 dofile(MP.."/bones.lua")
 dofile(MP.."/death.lua")
 

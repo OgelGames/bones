@@ -147,4 +147,5 @@ minetest.register_on_dieplayer(function(player)
 		meta:set_string("infotext", S("@1's bones", name))
 	end
 	log_death(bones_pos, name, "bones")
+	bones.add_waypoint(pos, player)
 end)
