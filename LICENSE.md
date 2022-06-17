@@ -8,7 +8,7 @@ Except for the exceptions stated below, all code is licensed under the [MIT Lice
 
 ## Notes
 
--
+Translations taken from Minetest Game. Used under MIT license.
 
 ## MIT License
 
