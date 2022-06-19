@@ -14,7 +14,10 @@ end
 
 local MP = minetest.get_modpath("bones")
 
-dofile(MP.."/waypoints.lua")
+if bones.waypoint_time > 0 then
+	dofile(MP.."/waypoints.lua")
+end
+
 dofile(MP.."/bones.lua")
 dofile(MP.."/death.lua")
 

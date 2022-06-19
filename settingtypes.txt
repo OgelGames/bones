@@ -12,4 +12,5 @@ bones_share_time (Bones share time) int 1200 0
 bones_position_message (Bones message) bool false
 
 # The time in seconds that bone waypoints will be shown.
+# Setting this to 0 will disable waypoints.
 bones_waypoint_time (Bones waypoint time) int 3600 0

@@ -73,6 +73,9 @@ minetest.register_node("bones:bones", {
 		end
 	end,
 	on_destruct = function(pos)
+		if bones.waypoint_time <= 0 then
+			return
+		end
 		local name = minetest.get_meta(pos):get_string("owner")
 		local player = minetest.get_player_by_name(name)
 		if player then
