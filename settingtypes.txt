@@ -8,8 +8,8 @@ bones_mode (Bones mode) enum bones bones,drop,keep
 # Setting this to 0 will disable sharing of bones completely.
 bones_share_time (Bones share time) int 1200 0
 
-# Inform players of condition and location of new bones.
-bones_position_message (Bones message) bool false
+# Inform player of location and condition of new bones.
+bones_position_message (Bones message) bool true
 
 # The time in seconds that bone waypoints will be shown.
 # Setting this to 0 will disable waypoints.
