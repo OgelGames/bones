@@ -98,9 +98,9 @@ local function log_death(pos, name, action)
 	if action == "keep" or action == "none" then
 		minetest.chat_send_player(name, S("You died at @1.", pos_str))
 	elseif action == "bones" then
-		minetest.chat_send_player(name, S("You died at @1, and bones were placed.", pos_str))
+		minetest.chat_send_player(name, S("You died at @1. Bones were placed.", pos_str))
 	elseif action == "drop" then
-		minetest.chat_send_player(name, S("You died at @1, and your inventory was dropped.", pos_str))
+		minetest.chat_send_player(name, S("You died at @1. Your inventory was dropped.", pos_str))
 	end
 end
 

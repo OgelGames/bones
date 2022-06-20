@@ -1,8 +1,8 @@
 # textdomain: bones
 Bones=lo bongu gunma
 You died at @1.=
-You died at @1, and your inventory was dropped.=
-You died at @1, and bones were placed.=
+You died at @1. Your inventory was dropped.=
+You died at @1. Bones were placed.=
 @1's old bones=.i ti tolci'o ke bongu gunma po'a la'o zo'i.@1.zo'i
 @1's fresh bones=.i ti cnino ke bongu gunma po'a la'o zo'i.@1.zo'i
 @1's bones=.i ti bongu gunma po'a la'o zo'i.@1.zo'i

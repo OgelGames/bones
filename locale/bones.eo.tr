@@ -1,8 +1,8 @@
 # textdomain: bones
 Bones=Ostoj
 You died at @1.=
-You died at @1, and your inventory was dropped.=
-You died at @1, and bones were placed.=
+You died at @1. Your inventory was dropped.=
+You died at @1. Bones were placed.=
 @1's old bones=La malnova ostoj de @1
 @1's fresh bones=La nova ostoj de @1
 @1's bones=La ostoj de @1

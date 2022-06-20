@@ -1,8 +1,8 @@
 # textdomain: bones
 Bones=骨骸
 You died at @1.=
-You died at @1, and your inventory was dropped.=
-You died at @1, and bones were placed.=
+You died at @1. Your inventory was dropped.=
+You died at @1. Bones were placed.=
 @1's old bones=@1的舊骨骸
 @1's fresh bones=@1的新鮮骨骸
 @1's bones=@1的骨骸

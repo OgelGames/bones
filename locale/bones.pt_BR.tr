@@ -1,8 +1,8 @@
 # textdomain: bones
 Bones=Ossos
 You died at @1.=Morreste em @1.
-You died at @1, and your inventory was dropped.=Morreste em @1, o teu inventário foi droppado.
-You died at @1, and bones were placed.=Morreste em @1, ossos foram colocados.
+You died at @1. Your inventory was dropped.=Morreste em @1. O teu inventário foi droppado.
+You died at @1. Bones were placed.=Morreste em @1. Ossos foram colocados.
 @1's old bones=Ossos antigos de @1
 @1's fresh bones=Ossos recentes de @1
 @1's bones=Ossos de @1
