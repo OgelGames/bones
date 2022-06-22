@@ -16,10 +16,10 @@ end
 minetest.register_node("bones:bones", {
 	description = S("Bones"),
 	tiles = {
-		"bones_top.png",
+		"bones_top.png^[transform2",
 		"bones_bottom.png",
-		"bones_left.png",
-		"bones_right.png",
+		"bones_side.png",
+		"bones_side.png^[transform4",
 		"bones_rear.png",
 		"bones_front.png"
 	},
