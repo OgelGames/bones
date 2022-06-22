@@ -5,7 +5,7 @@ bones = {
 	share_time = tonumber(minetest.settings:get("bones_share_time")) or 1200,
 	waypoint_time = tonumber(minetest.settings:get("bones_waypoint_time")) or 3600,
 	mode = minetest.settings:get("bones_mode") or "bones",
-	position_message = minetest.settings:get_bool("bones_position_message"),
+	position_message = minetest.settings:get_bool("bones_position_message", true),
 }
 
 if bones.mode ~= "bones" and bones.mode ~= "drop" and bones.mode ~= "keep" then
