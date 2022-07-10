@@ -14,6 +14,9 @@ local function can_replace(pos)
 	if node.name == "air" or node.name == "vacuum:vacuum" then
 		return true  -- Air and vacuum is always replaceable
 	end
+	if node.name == "ignore" then
+		return false  -- Never replace ignore
+	end
 	local def = minetest.registered_nodes[node.name]
 	if not def then
 		return false  -- Never replace unknown nodes
