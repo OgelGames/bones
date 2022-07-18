@@ -11,9 +11,6 @@ local adjacent_positions = {
 
 local function can_replace(pos)
 	local node = minetest.get_node(pos)
-	if node.name == "air" or node.name == "vacuum:vacuum" then
-		return true  -- Air and vacuum is always replaceable
-	end
 	if node.name == "ignore" then
 		return false  -- Never replace ignore
 	end
@@ -43,14 +40,29 @@ local function can_replace(pos)
 end
 
 local function find_replaceable_pos(origin)
-	if can_replace(origin) then
+	-- First check for air or vacuum at player position
+	local node = minetest.get_node(origin)
+	if node.name == "air" or node.name == "vacuum:vacuum" then
 		return origin
 	end
 	local above = vector.add(origin, vector.new(0, 1, 0))
-	if can_replace(above) then
+	local above_node = minetest.get_node(above)
+	if above_node.name == "air" or above_node.name == "vacuum:vacuum" then
 		return above
 	end
-	return minetest.find_node_near(origin, 5, {"air", "vacuum:vacuum"})
+	-- Then search for any nearby air or vacuum
+	local found = minetest.find_node_near(origin, 5, {"air", "vacuum:vacuum"})
+	if found then
+		return found
+	end
+	-- As a final attempt, check if any nearby node can be replaced
+	local pos
+	for x=-1,1 do for y=-1,1 do for z=-1,1 do
+		pos = vector.add(origin, vector.new(x, y, z))
+		if can_replace(pos) then
+			return pos
+		end
+	end end end
 end
 
 local function get_all_items(player)
