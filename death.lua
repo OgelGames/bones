@@ -9,7 +9,17 @@ local adjacent_positions = {
 	vector.new( 0, 0,-1),
 }
 
+local function in_map(pos)  -- https://github.com/OgelGames/bones/issues/6
+	local size = 30927
+	return pos.x > -size and pos.x < size
+	   and pos.y > -size and pos.y < size
+	   and pos.z > -size and pos.z < size
+end
+
 local function can_replace(pos)
+	if not in_map(pos) then
+		return false
+	end
 	local node = minetest.get_node(pos)
 	if node.name == "ignore" then
 		return false  -- Never replace ignore
@@ -41,18 +51,22 @@ end
 
 local function find_replaceable_pos(origin)
 	-- First check for air or vacuum at player position
-	local node = minetest.get_node(origin)
-	if node.name == "air" or node.name == "vacuum:vacuum" then
-		return origin
+	if in_map(origin) then
+		local node = minetest.get_node(origin)
+		if node.name == "air" or node.name == "vacuum:vacuum" then
+			return origin
+		end
 	end
 	local above = vector.add(origin, vector.new(0, 1, 0))
-	local above_node = minetest.get_node(above)
-	if above_node.name == "air" or above_node.name == "vacuum:vacuum" then
-		return above
+	if in_map(above) then
+		local above_node = minetest.get_node(above)
+		if above_node.name == "air" or above_node.name == "vacuum:vacuum" then
+			return above
+		end
 	end
 	-- Then search for any nearby air or vacuum
 	local found = minetest.find_node_near(origin, 5, {"air", "vacuum:vacuum"})
-	if found then
+	if found and in_map(found) then
 		return found
 	end
 	-- As a final attempt, check if any nearby node can be replaced
