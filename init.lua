@@ -6,10 +6,15 @@ bones = {
 	waypoint_time = tonumber(minetest.settings:get("bones_waypoint_time")) or 3600,
 	mode = minetest.settings:get("bones_mode") or "bones",
 	position_message = minetest.settings:get_bool("bones_position_message", true),
+	disable_drop = minetest.settings:get_bool("bones_disable_drop", false),
 }
 
 if bones.mode ~= "bones" and bones.mode ~= "drop" and bones.mode ~= "keep" then
 	bones.mode = "bones"
+end
+
+if bones.mode ~= "bones" and bones.disable_drop ~= false then
+	bones.disable_drop = false
 end
 
 local MP = minetest.get_modpath("bones")
