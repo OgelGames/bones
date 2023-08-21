@@ -153,7 +153,7 @@ minetest.register_on_dieplayer(function(player)
 		bones_pos = find_replaceable_pos(pos)
 	end
 	-- Drop items on the ground
-	if bones.mode == "drop" and bones.disable_drop ~= true and not bones_pos then
+	if bones.mode == "drop" and bones.disable_drop == false and not bones_pos then
 		for _,stack in pairs(items) do
 			drop_item(pos, stack)
 		end
