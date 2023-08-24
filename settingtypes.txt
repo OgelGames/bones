@@ -16,4 +16,4 @@ bones_position_message (Bones message) bool true
 bones_waypoint_time (Bones waypoint time) int 3600 0
 
 # Disable item drops (requires 'bones_mode=bones')
-bones_disable_drop (Disable item drops - requires 'bones_mode=bones') bool false
+bones_fallback_mode (Disable item drops - requires 'bones_mode=bones') bool false
