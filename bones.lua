@@ -25,6 +25,7 @@ minetest.register_node("bones:bones", {
 	},
 	paramtype2 = "facedir",
 	groups = {dig_immediate = 2},
+	is_ground_content = false,
 	sounds = {
 		footstep = {name = "bones_footstep", gain = 1.1},
 		dig = {name = "bones_dig", gain = 0.9},
