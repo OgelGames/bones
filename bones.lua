@@ -87,6 +87,12 @@ minetest.register_node("bones:bones", {
 	on_movenode = function(from_pos, to_pos)
 		local meta = core.get_meta(from_pos)
 		local owner = meta:get_string("owner")
+		-- Don't bother with empty (decorative) bones.
+		-- Possibly it would be better to check infotext or inventory emptyness.
+		if owner == "" then
+			return
+		end
+
 		local player = core.get_player_by_name(owner)
 		if player then
 			bones.remove_waypoint(from_pos, player)
