@@ -10,10 +10,11 @@ local adjacent_positions = {
 }
 
 local function in_map(pos)  -- https://github.com/OgelGames/bones/issues/6
-	local size = 30927
-	return pos.x > -size and pos.x < size
-	   and pos.y > -size and pos.y < size
-	   and pos.z > -size and pos.z < size
+	local size_positive = 30927
+	local size_negative = -30912
+	return pos.x >= size_negative and pos.x <= size_positive
+	   and pos.y >= size_negative and pos.y <= size_positive
+	   and pos.z >= size_negative and pos.z <= size_positive
 end
 
 local function can_replace(pos)
