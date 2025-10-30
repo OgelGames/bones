@@ -85,7 +85,7 @@ minetest.register_node("bones:bones", {
 	end,
 	on_blast = function() end,
 	on_movenode = function(from_pos, to_pos)
-		local meta = core.get_meta(from_pos)
+		local meta = core.get_meta(to_pos)
 		local owner = meta:get_string("owner")
 		-- Don't bother with empty (decorative) bones.
 		-- Possibly it would be better to check infotext or inventory emptyness.
