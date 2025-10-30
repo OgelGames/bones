@@ -50,6 +50,9 @@ local function can_replace(pos)
 end
 
 local function find_replaceable_pos(origin)
+	-- Load the area to be checked, in case the death was in or near an unloaded area
+	local offset = vector.new(5, 5, 5)
+	minetest.load_area(vector.subtract(origin, offset), vector.add(origin, offset))
 	-- First check for air or vacuum at player position
 	if in_map(origin) then
 		local node = minetest.get_node(origin)
