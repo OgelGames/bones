@@ -95,7 +95,6 @@ minetest.register_node("bones:bones", {
 			bones.remove_waypoint(from_pos, player)
 			bones.add_waypoint(to_pos, player)
 		end
-		
 		local from = core.pos_to_string(from_pos)
 		local to = core.pos_to_string(to_pos)
 		core.log("action", "Bones of "..owner.." moved from "..from.." to "..to)
