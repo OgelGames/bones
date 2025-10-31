@@ -1,7 +1,7 @@
 unused_args = false
 
 globals = {
-    "minetest",
+	"core", "minetest",
 	"bones",
 }
 
