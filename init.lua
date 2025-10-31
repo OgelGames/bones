@@ -2,17 +2,17 @@
 bones = {
 	redo = true,
 	registered_inventories = {},
-	share_time = tonumber(minetest.settings:get("bones_share_time")) or 1200,
-	waypoint_time = tonumber(minetest.settings:get("bones_waypoint_time")) or 3600,
-	mode = minetest.settings:get("bones_mode") or "bones",
-	position_message = minetest.settings:get_bool("bones_position_message", true),
+	share_time = tonumber(core.settings:get("bones_share_time")) or 1200,
+	waypoint_time = tonumber(core.settings:get("bones_waypoint_time")) or 3600,
+	mode = core.settings:get("bones_mode") or "bones",
+	position_message = core.settings:get_bool("bones_position_message", true),
 }
 
 if bones.mode ~= "bones" and bones.mode ~= "drop" and bones.mode ~= "keep" then
 	bones.mode = "bones"
 end
 
-local MP = minetest.get_modpath("bones")
+local MP = core.get_modpath("bones")
 
 if bones.waypoint_time > 0 then
 	dofile(MP.."/waypoints.lua")
@@ -32,13 +32,13 @@ end
 bones.register_inventory("main")
 bones.register_inventory("craft")
 
-if minetest.get_modpath("3d_armor") then
+if core.get_modpath("3d_armor") then
 	-- Remove 3d_armor's on_dieplayer function
-	-- Uses the undocumented (but very useful) minetest.callback_origins to find the correct function
-	for i,func in pairs(minetest.registered_on_dieplayers) do
-		if minetest.callback_origins[func].mod == "3d_armor" then
-			minetest.callback_origins[func] = nil
-			table.remove(minetest.registered_on_dieplayers, i)
+	-- Uses the undocumented (but very useful) core.callback_origins to find the correct function
+	for i,func in pairs(core.registered_on_dieplayers) do
+		if core.callback_origins[func].mod == "3d_armor" then
+			core.callback_origins[func] = nil
+			table.remove(core.registered_on_dieplayers, i)
 			break
 		end
 	end

@@ -1,5 +1,5 @@
 
-local S = minetest.get_translator("bones")
+local S = core.get_translator("bones")
 
 local adjacent_positions = {
 	vector.new( 1, 0, 0),
@@ -20,15 +20,15 @@ local function can_replace(pos)
 	if not in_map(pos) then
 		return false
 	end
-	local node = minetest.get_node(pos)
+	local node = core.get_node(pos)
 	if node.name == "ignore" then
 		return false  -- Never replace ignore
 	end
-	local def = minetest.registered_nodes[node.name]
+	local def = core.registered_nodes[node.name]
 	if not def then
 		return false  -- Never replace unknown nodes
 	end
-	if def.buildable_to and not minetest.is_protected(pos, "") then
+	if def.buildable_to and not core.is_protected(pos, "") then
 		return true  -- Replacing unprotected buildable_to nodes is okay
 	end
 	if def.liquidtype == "flowing" then
@@ -38,7 +38,7 @@ local function can_replace(pos)
 		-- Check if the source will regenerate
 		local sources = 0
 		for _,p in pairs(adjacent_positions) do
-			if minetest.get_node(vector.add(pos, p)).name == node.name then
+			if core.get_node(vector.add(pos, p)).name == node.name then
 				sources = sources + 1
 			end
 			if sources > 1 then
@@ -52,23 +52,23 @@ end
 local function find_replaceable_pos(origin)
 	-- Load the area to be checked, in case the death was in or near an unloaded area
 	local offset = vector.new(5, 5, 5)
-	minetest.load_area(vector.subtract(origin, offset), vector.add(origin, offset))
+	core.load_area(vector.subtract(origin, offset), vector.add(origin, offset))
 	-- First check for air or vacuum at player position
 	if in_map(origin) then
-		local node = minetest.get_node(origin)
+		local node = core.get_node(origin)
 		if node.name == "air" or node.name == "vacuum:vacuum" then
 			return origin
 		end
 	end
 	local above = vector.add(origin, vector.new(0, 1, 0))
 	if in_map(above) then
-		local above_node = minetest.get_node(above)
+		local above_node = core.get_node(above)
 		if above_node.name == "air" or above_node.name == "vacuum:vacuum" then
 			return above
 		end
 	end
 	-- Then search for any nearby air or vacuum
-	local found = minetest.find_node_near(origin, 5, {"air", "vacuum:vacuum"})
+	local found = core.find_node_near(origin, 5, {"air", "vacuum:vacuum"})
 	if found and in_map(found) then
 		return found
 	end
@@ -105,7 +105,7 @@ local function get_all_items(player)
 end
 
 local function drop_item(pos, stack)
-	local obj = minetest.add_item(pos, stack)
+	local obj = core.add_item(pos, stack)
 	if obj then
 		obj:set_velocity({
 			x = math.random(-10, 10) / 10,
@@ -116,31 +116,31 @@ local function drop_item(pos, stack)
 end
 
 local function log_death(pos, name, action)
-	local pos_str = minetest.pos_to_string(pos)
+	local pos_str = core.pos_to_string(pos)
 	if action == "keep" or action == "none" then
-		minetest.log("action", name.." dies at "..pos_str..". No bones placed.")
+		core.log("action", name.." dies at "..pos_str..". No bones placed.")
 	elseif action == "bones" then
-		minetest.log("action", name.." dies at "..pos_str..". Bones placed.")
+		core.log("action", name.." dies at "..pos_str..". Bones placed.")
 	elseif action == "drop" then
-		minetest.log("action", name.." dies at "..pos_str..". Inventory dropped.")
+		core.log("action", name.." dies at "..pos_str..". Inventory dropped.")
 	end
 	if not bones.position_message then
 		return
 	end
 	if action == "keep" or action == "none" then
-		minetest.chat_send_player(name, S("You died at @1.", pos_str))
+		core.chat_send_player(name, S("You died at @1.", pos_str))
 	elseif action == "bones" then
-		minetest.chat_send_player(name, S("You died at @1. Bones were placed.", pos_str))
+		core.chat_send_player(name, S("You died at @1. Bones were placed.", pos_str))
 	elseif action == "drop" then
-		minetest.chat_send_player(name, S("You died at @1. Your inventory was dropped.", pos_str))
+		core.chat_send_player(name, S("You died at @1. Your inventory was dropped.", pos_str))
 	end
 end
 
-minetest.register_on_dieplayer(function(player)
+core.register_on_dieplayer(function(player)
 	local pos = vector.round(player:get_pos())
 	local name = player:get_player_name()
 	-- Do nothing if keep inventory is set or player has creative
-	if bones.mode == "keep" or minetest.is_creative_enabled(name) then
+	if bones.mode == "keep" or core.is_creative_enabled(name) then
 		log_death(pos, name, "keep")
 		return
 	end
@@ -165,16 +165,16 @@ minetest.register_on_dieplayer(function(player)
 		return
 	end
 	-- Place bones
-	local param2 = minetest.dir_to_facedir(player:get_look_dir())
-	minetest.set_node(bones_pos, {name = "bones:bones", param2 = param2})
-	local meta = minetest.get_meta(bones_pos)
+	local param2 = core.dir_to_facedir(player:get_look_dir())
+	core.set_node(bones_pos, {name = "bones:bones", param2 = param2})
+	local meta = core.get_meta(bones_pos)
 	local inv = meta:get_inventory()
 	inv:set_size("main", #items)
 	inv:set_list("main", items)
 	if bones.share_time > 0 then
 		meta:set_string("infotext", S("@1's fresh bones", name))
 		meta:set_string("owner", name)
-		minetest.get_node_timer(bones_pos):start(10)
+		core.get_node_timer(bones_pos):start(10)
 	else
 		meta:set_string("infotext", S("@1's bones", name))
 	end
