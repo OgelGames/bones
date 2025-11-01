@@ -3,7 +3,7 @@ local S = core.get_translator("bones")
 
 local function add_to_hud(player, waypoint)
 	waypoint.id = player:hud_add({
-		hud_elem_type = "waypoint",
+		type = "waypoint",
 		name = S("Bones"),
 		text = "m",
 		number = 0xFFFFFF,
@@ -46,6 +46,7 @@ end
 
 core.register_on_joinplayer(function(player)
 	local meta = player:get_meta()
+	local name = player:get_player_name()
 	local waypoints = core.deserialize(meta:get_string("bone_waypoints")) or {}
 	local current_time = os.time()
 	for pos_string, waypoint in pairs(waypoints) do
@@ -55,7 +56,7 @@ core.register_on_joinplayer(function(player)
 				core.load_area(waypoint.pos)
 				node = core.get_node(waypoint.pos)
 			end
-			if node.name == "bones:bones" then
+			if node.name == "bones:bones" and core.get_meta(waypoint.pos):get_string("owner") == name then
 				add_to_hud(player, waypoint)
 			else
 				waypoints[pos_string] = nil

@@ -12,16 +12,17 @@ if bones.mode ~= "bones" and bones.mode ~= "drop" and bones.mode ~= "keep" then
 	bones.mode = "bones"
 end
 
+bones.waypoints = bones.waypoint_time > 0
+
 local MP = core.get_modpath("bones")
 
-if bones.waypoint_time > 0 then
+if bones.waypoints then
 	dofile(MP.."/waypoints.lua")
 end
 
 dofile(MP.."/bones.lua")
 dofile(MP.."/death.lua")
 
--- API to register inventories to be placed in bones on death
 -- Can either be the name of a list in the player's inventory, or a function that returns a list
 function bones.register_inventory(inv)
 	if type(inv) == "string" or type(inv) == "function" then

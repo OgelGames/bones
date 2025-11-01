@@ -73,17 +73,14 @@ core.register_node("bones:bones", {
 			meta:set_string("infotext", S("@1's old bones", meta:get_string("owner")))
 		end
 	end,
-	on_destruct = function(pos)
-		if bones.waypoint_time <= 0 then
-			return
-		end
+	on_destruct = bones.waypoints and function(pos)
 		local name = core.get_meta(pos):get_string("owner")
 		local player = core.get_player_by_name(name)
 		if player then
 			bones.remove_waypoint(pos, player)
 		end
-	end,
-	on_movenode = function(from_pos, to_pos)
+	end or nil,
+	on_movenode = bones.waypoints and function(from_pos, to_pos)
 		local meta = core.get_meta(to_pos)
 		local owner = meta:get_string("owner")
 		-- Ignore empty (decorative) bones.
@@ -98,6 +95,6 @@ core.register_node("bones:bones", {
 		local from = core.pos_to_string(from_pos)
 		local to = core.pos_to_string(to_pos)
 		core.log("action", "Bones of "..owner.." moved from "..from.." to "..to)
-	end,
+	end or nil,
 	on_blast = function() end,
 })
