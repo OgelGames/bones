@@ -1,19 +1,19 @@
 
-local S = minetest.get_translator("bones")
+local S = core.get_translator("bones")
 
 local function is_owner(pos, name)
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	if meta:get_int("time") >= bones.share_time then
 		return true
 	end
 	local owner = meta:get_string("owner")
-	if owner == "" or owner == name or minetest.check_player_privs(name, "protection_bypass") then
+	if owner == "" or owner == name or core.check_player_privs(name, "protection_bypass") then
 		return true
 	end
 	return false
 end
 
-minetest.register_node("bones:bones", {
+core.register_node("bones:bones", {
 	description = S("Bones"),
 	tiles = {
 		"bones_top.png^[transform2",
@@ -33,10 +33,10 @@ minetest.register_node("bones:bones", {
 		place = {name = "bones_place", gain = 0.7},
 	},
 	can_dig = function(pos, player)
-		return minetest.get_meta(pos):get_inventory():is_empty("main")
+		return core.get_meta(pos):get_inventory():is_empty("main")
 	end,
 	on_punch = function(pos, node, player)
-		local meta = minetest.get_meta(pos)
+		local meta = core.get_meta(pos)
 		local name = player:get_player_name()
 		if meta:get_string("infotext") == "" or not is_owner(pos, name) then
 			return
@@ -56,15 +56,15 @@ minetest.register_node("bones:bones", {
 			if player_inv:room_for_item("main", "bones:bones") then
 				player_inv:add_item("main", "bones:bones")
 			else
-				minetest.add_item(pos, "bones:bones")
+				core.add_item(pos, "bones:bones")
 			end
-			minetest.remove_node(pos)
+			core.remove_node(pos)
 		end
 		-- Log the bone-taking
-		minetest.log("action", name.." takes items from bones at "..minetest.pos_to_string(pos))
+		core.log("action", name.." takes items from bones at "..core.pos_to_string(pos))
 	end,
 	on_timer = function(pos, elapsed)
-		local meta = minetest.get_meta(pos)
+		local meta = core.get_meta(pos)
 		local t = meta:get_int("time") + elapsed
 		meta:set_int("time", t)
 		if t < bones.share_time then
@@ -73,16 +73,29 @@ minetest.register_node("bones:bones", {
 			meta:set_string("infotext", S("@1's old bones", meta:get_string("owner")))
 		end
 	end,
-	on_destruct = function(pos)
-		if bones.waypoint_time <= 0 then
-			return
-		end
-		local name = minetest.get_meta(pos):get_string("owner")
-		local player = minetest.get_player_by_name(name)
+	on_destruct = bones.waypoints and function(pos)
+		local name = core.get_meta(pos):get_string("owner")
+		local player = core.get_player_by_name(name)
 		if player then
 			bones.remove_waypoint(pos, player)
 		end
-	end,
+	end or nil,
+	on_movenode = bones.waypoints and function(from_pos, to_pos)
+		local meta = core.get_meta(to_pos)
+		local owner = meta:get_string("owner")
+		-- Ignore empty (decorative) bones.
+		if owner == "" then
+			return
+		end
+		local player = core.get_player_by_name(owner)
+		if player then
+			bones.remove_waypoint(from_pos, player)
+			bones.add_waypoint(to_pos, player)
+		end
+		local from = core.pos_to_string(from_pos)
+		local to = core.pos_to_string(to_pos)
+		core.log("action", "Bones of "..owner.." moved from "..from.." to "..to)
+	end or nil,
 	on_blast = function() end,
 	on_movenode = function(from_pos, to_pos)
 		local meta = core.get_meta(to_pos)
