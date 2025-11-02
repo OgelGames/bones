@@ -31,13 +31,13 @@ core.register_node("bones:bones", {
 		"bones_front.png"
 	},
 	paramtype2 = "facedir",
-	groups = {dig_immediate = 2},
+	groups = { dig_immediate = 2 },
 	is_ground_content = false,
 	sounds = {
-		footstep = {name = "bones_footstep", gain = 1.1},
-		dig = {name = "bones_dig", gain = 0.9},
-		dug = {name = "bones_dug", gain = 0.8},
-		place = {name = "bones_place", gain = 0.7},
+		footstep = { name = "bones_footstep", gain = 1.1 },
+		dig = { name = "bones_dig", gain = 0.9 },
+		dug = { name = "bones_dug", gain = 0.8 },
+		place = { name = "bones_place", gain = 0.7 },
 	},
 	can_dig = function(pos)
 		return core.get_meta(pos):get_inventory():is_empty("main")
@@ -52,7 +52,7 @@ core.register_node("bones:bones", {
 		-- Move as many items as possible to the player's inventory
 		local inv = meta:get_inventory()
 		local player_inv = player:get_inventory()
-		for i=1, inv:get_size("main") do
+		for i = 1, inv:get_size("main") do
 			local stack = inv:get_stack("main", i)
 			if player_inv:room_for_item("main", stack) then
 				player_inv:add_item("main", stack)
@@ -69,7 +69,7 @@ core.register_node("bones:bones", {
 			core.remove_node(pos)
 		end
 		-- Log the bone-taking
-		core.log("action", name.." takes items from bones at "..core.pos_to_string(pos))
+		core.log("action", name .. " takes items from bones at " .. core.pos_to_string(pos))
 	end,
 	on_rightclick = function (pos, _, player) -- pos, node, clicker, itemstack, pointed_thing
 		if not allow_inventory_action(pos, player) then
@@ -132,6 +132,7 @@ core.register_node("bones:bones", {
 		if owner == "" then
 			return
 		end
+
 		local player = core.get_player_by_name(owner)
 		if player then
 			bones.remove_waypoint(from_pos, player)
@@ -139,7 +140,8 @@ core.register_node("bones:bones", {
 		end
 		local from = core.pos_to_string(from_pos)
 		local to = core.pos_to_string(to_pos)
-		core.log("action", "Bones of "..owner.." moved from "..from.." to "..to)
+		core.log("action", "Bones of " .. owner .. " moved from " .. from .. " to " .. to)
 	end or nil,
 	on_blast = function() end,
 })
+
