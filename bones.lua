@@ -39,7 +39,7 @@ core.register_node("bones:bones", {
 		dug = {name = "bones_dug", gain = 0.8},
 		place = {name = "bones_place", gain = 0.7},
 	},
-	can_dig = function(pos, player)
+	can_dig = function(pos)
 		return core.get_meta(pos):get_inventory():is_empty("main")
 	end,
 	on_punch = function(pos, _, player)
