@@ -1,7 +1,6 @@
 
 bones = {
 	redo = true,
-	registered_inventories = {},
 	share_time = tonumber(core.settings:get("bones_share_time")) or 1200,
 	waypoint_time = tonumber(core.settings:get("bones_waypoint_time")) or 3600,
 	mode = core.settings:get("bones_mode") or "bones",
@@ -22,13 +21,7 @@ end
 
 dofile(MP.."/bones.lua")
 dofile(MP.."/death.lua")
-
--- Can either be the name of a list in the player's inventory, or a function that returns a list
-function bones.register_inventory(inv)
-	if type(inv) == "string" or type(inv) == "function" then
-		table.insert(bones.registered_inventories, inv)
-	end
-end
+dofile(MP.."/inventories.lua")
 
 bones.register_inventory("main")
 bones.register_inventory("craft")
@@ -43,21 +36,42 @@ if core.get_modpath("3d_armor") then
 			break
 		end
 	end
-	-- Register the inventory function
-	bones.register_inventory(function(player)
-		local name, inv = armor:get_valid_player(player, "[on_dieplayer]")
-		if not name then
-			return
-		end
-		local items = inv:get_list("armor")
-		for i,stack in pairs(items) do
-			if stack:get_count() > 0 then
-				armor:run_callbacks("on_unequip", player, i, stack)
+	-- Register the armor inventory
+	bones.register_inventory("armor", {
+		has_items = function(player)
+			local name, inv = armor:get_valid_player(player)
+			if not name then
+				return
 			end
+			return not inv:is_empty("armor")
+		end,
+		take_items = function(player)
+			local name, inv = armor:get_valid_player(player)
+			if not name then
+				return
+			end
+			local items = inv:get_list("armor")
+			inv:set_list("armor", {})
+			for i, stack in ipairs(items) do
+				if not stack:is_empty() then
+					armor:run_callbacks("on_unequip", player, i, stack)
+				end
+			end
+			armor:save_armor_inventory(player)
+			armor:set_player_armor(player)
+			return items
+		end,
+		restore_items = function(player, items)
+			local name = armor:get_valid_player(player)
+			if not name then
+				return items
+			end
+			for i, stack in ipairs(items) do
+				if not stack:is_empty() then
+					items[i] = armor:equip(player, stack)
+				end
+			end
+			return items
 		end
-		inv:set_list("armor", {})
-		armor:save_armor_inventory(player)
-		armor:set_player_armor(player)
-		return items
-	end)
+	})
 end

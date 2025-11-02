@@ -83,28 +83,6 @@ local function find_replaceable_pos(origin)
 	end end end
 end
 
-local function get_all_items(player)
-	local items = {}
-	local player_inv = player:get_inventory()
-	for _,inv in pairs(bones.registered_inventories) do
-		local list
-		if type(inv) == "function" then
-			list = inv(player)
-		else
-			list = player_inv:get_list(inv)
-			player_inv:set_list(inv, {})
-		end
-		if list then
-			for _,stack in pairs(list) do
-				if stack:get_count() > 0 then
-					items[#items+1] = stack
-				end
-			end
-		end
-	end
-	return items
-end
-
 local function drop_item(pos, stack)
 	local obj = core.add_item(pos, stack)
 	if obj then
@@ -146,11 +124,11 @@ core.register_on_dieplayer(function(player)
 		return
 	end
 	-- Check if player has items, do nothing if they don't
-	local items = get_all_items(player)
-	if #items == 0 then
+	if not bones.has_any_items(player) then
 		log_death(pos, name, "none")
 		return
 	end
+	local inv_lists = bones.take_all_items(player)
 	-- Check if it's possible to place bones
 	local bones_pos
 	if bones.mode == "bones" then
@@ -158,8 +136,10 @@ core.register_on_dieplayer(function(player)
 	end
 	-- Drop items on the ground
 	if bones.mode == "drop" or not bones_pos then
-		for _,stack in pairs(items) do
-			drop_item(pos, stack)
+		for _,list in ipairs(inv_lists) do
+			for _,stack in pairs(list) do
+				drop_item(pos, stack)
+			end
 		end
 		drop_item(pos, "bones:bones")
 		log_death(pos, name, "drop")
@@ -169,9 +149,7 @@ core.register_on_dieplayer(function(player)
 	local param2 = core.dir_to_facedir(player:get_look_dir())
 	core.set_node(bones_pos, {name = "bones:bones", param2 = param2})
 	local meta = core.get_meta(bones_pos)
-	local inv = meta:get_inventory()
-	inv:set_size("main", #items)
-	inv:set_list("main", items)
+	meta:get_inventory():set_lists(inv_lists)
 	if bones.share_time > 0 then
 		meta:set_string("infotext", S("@1's fresh bones", name))
 		meta:set_string("owner", name)

@@ -43,22 +43,24 @@ core.register_node("bones:bones", {
 		end
 		-- Move as many items as possible to the player's inventory
 		local inv = meta:get_inventory()
-		local player_inv = player:get_inventory()
-		for i=1, inv:get_size("main") do
-			local stack = inv:get_stack("main", i)
-			if player_inv:room_for_item("main", stack) then
-				player_inv:add_item("main", stack)
-				inv:set_stack("main", i, nil)
-			end
+		local inv_lists = inv:get_lists()
+		local empty
+		if meta:get_string("owner") == name then
+			empty = bones.restore_all_items(player, inv_lists)
+		else
+			empty = bones.add_all_items(player, inv_lists)
 		end
 		-- Remove bones if they have been emptied
-		if inv:is_empty("main") then
+		if empty then
+			local player_inv = player:get_inventory()
 			if player_inv:room_for_item("main", "bones:bones") then
 				player_inv:add_item("main", "bones:bones")
 			else
 				core.add_item(pos, "bones:bones")
 			end
 			core.remove_node(pos)
+		else
+			inv:set_lists(inv_lists)
 		end
 		-- Log the bone-taking
 		core.log("action", name.." takes items from bones at "..core.pos_to_string(pos))
