@@ -13,6 +13,13 @@ local function is_owner(pos, name)
 	return false
 end
 
+local function allow_inventory_action(pos, player)
+	if not (player and player:is_player()) then return false end
+
+	return core.get_meta(pos):get_string("infotext") ~= ""
+		and is_owner(pos, player:get_player_name())
+end
+
 core.register_node("bones:bones", {
 	description = S("Bones"),
 	tiles = {
@@ -35,12 +42,13 @@ core.register_node("bones:bones", {
 	can_dig = function(pos, player)
 		return core.get_meta(pos):get_inventory():is_empty("main")
 	end,
-	on_punch = function(pos, node, player)
-		local meta = core.get_meta(pos)
-		local name = player:get_player_name()
-		if meta:get_string("infotext") == "" or not is_owner(pos, name) then
+	on_punch = function(pos, _, player)
+		if not allow_inventory_action(pos, player) then
 			return
 		end
+
+		local meta = core.get_meta(pos)
+		local name = player:get_player_name()
 		-- Move as many items as possible to the player's inventory
 		local inv = meta:get_inventory()
 		local player_inv = player:get_inventory()
