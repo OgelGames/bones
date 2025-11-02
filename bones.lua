@@ -71,6 +71,43 @@ core.register_node("bones:bones", {
 		-- Log the bone-taking
 		core.log("action", name.." takes items from bones at "..core.pos_to_string(pos))
 	end,
+	on_rightclick = function (pos, _, player) -- pos, node, clicker, itemstack, pointed_thing
+		if not allow_inventory_action(pos, player) then
+			return
+		end
+
+		local meta = core.get_meta(pos)
+		local name = player:get_player_name()
+		local columns = core.get_modpath("mcl_core") and 9 or 8
+		local rows = math.ceil(meta:get_inventory():get_size("main") / columns)
+		local context = string.format("nodemeta:%d,%d,%d", pos.x, pos.y, pos.z)
+		local formspec = "size[" .. columns .. "," .. (rows + 4) .. "]"
+			.. "list[" .. context .. ";main;0,0;" .. columns .. "," .. rows .. ";]"
+			.. "list[current_player;main;0," .. (rows + .25) .. ";" .. columns .. ",4;]"
+			.. "listring[]"
+		core.show_formspec(name, "bones_form_" .. core.pos_to_string(pos), formspec)
+	end,
+	allow_metadata_inventory_move = function(pos, _, _, _, _, count, player)
+		if not allow_inventory_action(pos, player) then
+			return 0
+		end
+
+		return count
+	end,
+	allow_metadata_inventory_put = function(pos, _, _, stack, player)
+		if not allow_inventory_action(pos, player) then
+			return 0
+		end
+
+		return stack:get_count()
+	end,
+	allow_metadata_inventory_take = function(pos, _, _, stack, player)
+		if not allow_inventory_action(pos, player) then
+			return 0
+		end
+
+		return stack:get_count()
+	end,
 	on_timer = function(pos, elapsed)
 		local meta = core.get_meta(pos)
 		local t = meta:get_int("time") + elapsed
