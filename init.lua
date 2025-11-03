@@ -1,14 +1,18 @@
 
 bones = {
 	redo = true,
-	share_time = tonumber(core.settings:get("bones_share_time")) or 1200,
+	share_time = tonumber(core.settings:get("bones_share_time")) or 1800,
 	waypoint_time = tonumber(core.settings:get("bones_waypoint_time")) or 3600,
 	mode = core.settings:get("bones_mode") or "bones",
 	position_message = core.settings:get_bool("bones_position_message", true),
+	drop_items = core.settings:get_bool("bones_drop_items", true),
 }
 
-if bones.mode ~= "bones" and bones.mode ~= "drop" and bones.mode ~= "keep" then
+if bones.mode ~= "bones" and bones.mode ~= "entity" and bones.mode ~= "drop" and bones.mode ~= "keep" then
 	bones.mode = "bones"
+end
+if bones.mode == "drop" and not bones.drop_items then
+	bones.mode = "keep"
 end
 
 bones.waypoints = bones.waypoint_time > 0
@@ -20,6 +24,7 @@ if bones.waypoints then
 end
 
 dofile(MP.."/bones.lua")
+dofile(MP.."/entity.lua")
 dofile(MP.."/death.lua")
 dofile(MP.."/inventories.lua")
 

@@ -128,14 +128,27 @@ core.register_on_dieplayer(function(player)
 		log_death(pos, name, "none")
 		return
 	end
+	local param2 = core.dir_to_facedir(player:get_look_dir())
 	local inv_lists = bones.take_all_items(player)
 	-- Check if it's possible to place bones
 	local bones_pos
 	if bones.mode == "bones" then
 		bones_pos = find_replaceable_pos(pos)
 	end
+	-- Create bones entity
+	if bones.mode == "entity" or not bones_pos then
+		local entity = core.add_entity(pos, "bones:entity")
+		if entity then
+			entity:get_luaentity():create(param2, name, inv_lists)
+			log_death(pos, name, "bones")
+			if bones.waypoints then
+				bones.add_waypoint(pos, player)
+			end
+			return
+		end
+	end
 	-- Drop items on the ground
-	if bones.mode == "drop" or not bones_pos then
+	if bones.drop_items and (bones.mode == "drop" or not bones_pos) then
 		for _,list in ipairs(inv_lists) do
 			for _,stack in pairs(list) do
 				drop_item(pos, stack)
@@ -144,22 +157,23 @@ core.register_on_dieplayer(function(player)
 		drop_item(pos, "bones:bones")
 		log_death(pos, name, "drop")
 		return
+	elseif not bones_pos then
+		log_death(pos, name, "keep")
+		return
 	end
-	-- Place bones
-	local param2 = core.dir_to_facedir(player:get_look_dir())
+	-- Place bones node
 	core.set_node(bones_pos, {name = "bones:bones", param2 = param2})
 	local meta = core.get_meta(bones_pos)
 	meta:get_inventory():set_lists(inv_lists)
+	meta:set_string("owner", name)
 	if bones.share_time > 0 then
 		meta:set_string("infotext", S("@1's fresh bones", name))
-		meta:set_string("owner", name)
 		core.get_node_timer(bones_pos):start(10)
 	else
 		meta:set_string("infotext", S("@1's bones", name))
 	end
 	log_death(bones_pos, name, "bones")
-	-- Add waypoint
-	if bones.waypoint_time > 0 then
+	if bones.waypoints then
 		bones.add_waypoint(bones_pos, player)
 	end
 end)

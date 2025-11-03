@@ -1,8 +1,7 @@
 
 local S = core.get_translator("bones")
 
-local function is_owner(pos, name)
-	local meta = core.get_meta(pos)
+local function is_owner(meta, name)
 	if meta:get_int("time") >= bones.share_time then
 		return true
 	end
@@ -38,7 +37,7 @@ core.register_node("bones:bones", {
 	on_punch = function(pos, node, player)
 		local meta = core.get_meta(pos)
 		local name = player:get_player_name()
-		if meta:get_string("infotext") == "" or not is_owner(pos, name) then
+		if meta:get_string("infotext") == "" or not is_owner(meta, name) then
 			return
 		end
 		-- Move as many items as possible to the player's inventory
