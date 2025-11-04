@@ -137,6 +137,49 @@ local function log_death(pos, name, action)
 	end
 end
 
+local function write_book(pos, name, items)
+	math.randomseed(os.time())
+	local uid = string.gsub("xx-xx-xx", "x", function()
+		return string.format("%x", math.random(0, 0xf))
+	end)
+	local pos_str = core.pos_to_string(pos)
+	local book = ItemStack("default:book_written")
+	local title = S("Obituary @1 for @2", uid, name)
+	local text = "Obituary of " .. name
+		.. "\nwho died on ".. os.date("%Y%m%d at %H:%M:%S")
+		.. "\nat " .. pos_str
+		.. ".\nRef. UID: " .. uid
+		.. ".\n\nItems carried at time of death:"
+	local keys, counts = {}, {}
+	do
+		local item_name, item_count
+		for _, stack in ipairs(items) do
+			item_name, item_count = stack:get_name(), stack:get_count()
+			if counts[item_name] then
+				counts[item_name] = counts[item_name] + item_count
+			else
+				counts[item_name] = item_count
+				table.insert(keys, item_name)
+			end
+		end
+	end
+	table.sort(keys)
+	local lines = #keys + 6
+	for _, item_name in ipairs(keys) do
+		text = text .. string.format("\n%d %s", counts[item_name], item_name)
+	end
+	local meta = book:get_meta()
+	meta:set_string("owner", "admin")
+	meta:set_string("title", title)
+	meta:set_string("description", title)
+	meta:set_string("text", text)
+	meta:set_int("page", 1)
+	meta:set_int("page_max", math.ceil(lines / 14))
+	core.log("action", "[bones] made book with UID " .. uid .. " for "
+		.. name .. " at " .. pos_str .. ".")
+	return book
+end
+
 core.register_on_dieplayer(function(player)
 	local pos = vector.round(player:get_pos())
 	local name = player:get_player_name()
@@ -156,6 +199,7 @@ core.register_on_dieplayer(function(player)
 	if bones.mode == "bones" then
 		bones_pos = find_replaceable_pos(pos)
 	end
+bones_pos = nil
 	-- Drop items on the ground
 	if bones.mode == "drop" or not bones_pos then
 		for _,stack in pairs(items) do
@@ -163,6 +207,10 @@ core.register_on_dieplayer(function(player)
 		end
 		drop_item(pos, "bones:bones")
 		log_death(pos, name, "drop")
+		if bones.mode ~= "drop" then
+			local book = write_book(pos, name, items)
+			player:get_inventory():add_item("main", book)
+		end
 		return
 	end
 	-- Place bones
@@ -185,3 +233,4 @@ core.register_on_dieplayer(function(player)
 		bones.add_waypoint(bones_pos, player)
 	end
 end)
+
