@@ -73,6 +73,7 @@ core.register_entity("bones:entity", {
 			owner = self.owner,
 			inventory = to_strings(self.inventory),
 			timer = self.timer,
+			punched = self.punched,
 		}
 		return core.serialize(data)
 	end,
@@ -81,6 +82,7 @@ core.register_entity("bones:entity", {
 		local data = core.deserialize(staticdata)
 		if data and data.rotation and data.owner and data.inventory then
 			self.timer = data.timer
+			self.punched = data.punched
 			self:create(data.rotation, data.owner, to_stacks(data.inventory))
 		end
 	end,
@@ -92,7 +94,7 @@ core.register_entity("bones:entity", {
 		-- Move as many items as possible to the player's inventory
 		local pos = self.object:get_pos()
 		local empty
-		if self.owner == name then
+		if self.owner == name and not self.punched then
 			empty = bones.restore_all_items(player, self.inventory)
 		else
 			empty = bones.add_all_items(player, self.inventory)
@@ -108,6 +110,7 @@ core.register_entity("bones:entity", {
 			self.object:remove()
 			core.sound_play("bones_dug", {gain = 0.8}, true)
 		else
+			self.punched = 1
 			core.sound_play("bones_dig", {gain = 0.9}, true)
 		end
 		-- Log the bone-taking

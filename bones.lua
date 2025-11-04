@@ -44,7 +44,7 @@ core.register_node("bones:bones", {
 		local inv = meta:get_inventory()
 		local inv_lists = inv:get_lists()
 		local empty
-		if meta:get_string("owner") == name then
+		if meta:get_string("owner") == name and not meta:get("punched") then
 			empty = bones.restore_all_items(player, inv_lists)
 		else
 			empty = bones.add_all_items(player, inv_lists)
@@ -65,6 +65,7 @@ core.register_node("bones:bones", {
 			end
 			core.sound_play("bones_dug", {gain = 0.8}, true)
 		else
+			meta:set_int("punched", 1)
 			inv:set_lists(inv_lists)
 		end
 		-- Log the bone-taking
