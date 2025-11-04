@@ -15,11 +15,9 @@ if bones.mode == "drop" and not bones.drop_items then
 	bones.mode = "keep"
 end
 
-bones.waypoints = bones.waypoint_time > 0
-
 local MP = core.get_modpath("bones")
 
-if bones.waypoints then
+if bones.waypoint_time > 0 then
 	dofile(MP.."/waypoints.lua")
 end
 

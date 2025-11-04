@@ -43,17 +43,23 @@ core.register_entity("bones:entity", {
 		collisionbox = {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
 		physical = true,
 		collide_with_objects = true,
+		damage_texture_modifier = "",
 	},
 	rotation = 0,
 	inventory = {},
+	owner = "",
 	timer = 0,
 	create = function(self, rotation, owner, inventory)
-		self.rotation = rotation
-		self.owner = owner
-		self.inventory = inventory
+		self.rotation = rotation or 0
+		self.owner = owner or ""
+		self.inventory = inventory or {}
 		local infotext
 		if bones.share_time > 0 then
-			infotext = S("@1's fresh bones", owner)
+			if self.timer >= bones.share_time then
+				infotext = S("@1's old bones", owner)
+			else
+				infotext = S("@1's fresh bones", owner)
+			end
 		else
 			infotext = S("@1's bones", owner)
 		end
@@ -71,10 +77,11 @@ core.register_entity("bones:entity", {
 		return core.serialize(data)
 	end,
 	on_activate = function(self, staticdata)
+		self.object:set_armor_groups({immortal = 1})
 		local data = core.deserialize(staticdata)
 		if data and data.rotation and data.owner and data.inventory then
-			self:create(data.rotation, data.owner, to_stacks(data.inventory))
 			self.timer = data.timer
+			self:create(data.rotation, data.owner, to_stacks(data.inventory))
 		end
 	end,
 	on_punch = function(self, player)
@@ -82,8 +89,8 @@ core.register_entity("bones:entity", {
 		if not is_owner(self, name) then
 			return true
 		end
-		local pos = self.object:get_pos()
 		-- Move as many items as possible to the player's inventory
+		local pos = self.object:get_pos()
 		local empty
 		if self.owner == name then
 			empty = bones.restore_all_items(player, self.inventory)
@@ -99,12 +106,26 @@ core.register_entity("bones:entity", {
 				core.add_item(pos, "bones:bones")
 			end
 			self.object:remove()
+			core.sound_play("bones_dug", {gain = 0.8}, true)
+		else
+			core.sound_play("bones_dig", {gain = 0.9}, true)
 		end
 		-- Log the bone-taking
 		core.log("action", name.." takes items from bones at "..core.pos_to_string(pos))
 		return true
 	end,
-	on_deactivate = bones.waypoints and function(self, removal)
+	on_step = bones.share_time > 0 and function(self, dtime)
+		if self.timer >= bones.share_time then
+			return
+		end
+		self.timer = self.timer + dtime
+		if self.timer >= bones.share_time then
+			self.object:set_properties({
+				infotext = S("@1's old bones", self.owner),
+			})
+		end
+	end or nil,
+	on_deactivate = bones.waypoint_time > 0 and function(self, removal)
 		if not removal then
 			return
 		end

@@ -57,7 +57,13 @@ core.register_node("bones:bones", {
 			else
 				core.add_item(pos, "bones:bones")
 			end
-			core.remove_node(pos)
+			local replaced = core.deserialize(meta:get_string("replaced"))
+			if replaced then
+				core.set_node(pos, replaced)
+			else
+				core.remove_node(pos)
+			end
+			core.sound_play("bones_dug", {gain = 0.8}, true)
 		else
 			inv:set_lists(inv_lists)
 		end
@@ -74,14 +80,14 @@ core.register_node("bones:bones", {
 			meta:set_string("infotext", S("@1's old bones", meta:get_string("owner")))
 		end
 	end,
-	on_destruct = bones.waypoints and function(pos)
+	on_destruct = bones.waypoint_time > 0 and function(pos)
 		local name = core.get_meta(pos):get_string("owner")
 		local player = core.get_player_by_name(name)
 		if player then
 			bones.remove_waypoint(pos, player)
 		end
 	end or nil,
-	on_movenode = bones.waypoints and function(from_pos, to_pos)
+	on_movenode = bones.waypoint_time > 0 and function(from_pos, to_pos)
 		local meta = core.get_meta(to_pos)
 		local owner = meta:get_string("owner")
 		-- Ignore empty (decorative) bones.

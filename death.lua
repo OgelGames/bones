@@ -141,7 +141,7 @@ core.register_on_dieplayer(function(player)
 		if entity then
 			entity:get_luaentity():create(param2, name, inv_lists)
 			log_death(pos, name, "bones")
-			if bones.waypoints then
+			if bones.waypoint_time > 0 then
 				bones.add_waypoint(pos, player)
 			end
 			return
@@ -162,10 +162,14 @@ core.register_on_dieplayer(function(player)
 		return
 	end
 	-- Place bones node
+	local replaced = core.get_node(pos)
 	core.set_node(bones_pos, {name = "bones:bones", param2 = param2})
 	local meta = core.get_meta(bones_pos)
 	meta:get_inventory():set_lists(inv_lists)
 	meta:set_string("owner", name)
+	if replaced.name ~= "air" then
+		meta:set_string("replaced", core.serialize(replaced))
+	end
 	if bones.share_time > 0 then
 		meta:set_string("infotext", S("@1's fresh bones", name))
 		core.get_node_timer(bones_pos):start(10)
@@ -173,7 +177,7 @@ core.register_on_dieplayer(function(player)
 		meta:set_string("infotext", S("@1's bones", name))
 	end
 	log_death(bones_pos, name, "bones")
-	if bones.waypoints then
+	if bones.waypoint_time > 0 then
 		bones.add_waypoint(bones_pos, player)
 	end
 end)
