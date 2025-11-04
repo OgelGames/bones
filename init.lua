@@ -46,7 +46,12 @@ if core.get_modpath("3d_armor") then
 			if not name then
 				return
 			end
-			return not inv:is_empty("armor")
+			for i, stack in ipairs(inv:get_list("armor")) do
+				if not stack:is_empty() and core.get_item_group(stack:get_name(), "soulbound") == 0 then
+					return true
+				end
+			end
+			return false
 		end,
 		take_items = function(player)
 			local name, inv = armor:get_valid_player(player)
@@ -57,7 +62,12 @@ if core.get_modpath("3d_armor") then
 			inv:set_list("armor", {})
 			for i, stack in ipairs(items) do
 				if not stack:is_empty() then
-					armor:run_callbacks("on_unequip", player, i, stack)
+					if core.get_item_group(stack:get_name(), "soulbound") ~= 0 then
+						inv:set_stack("armor", i, stack)
+						items[i] = ItemStack()
+					else
+						armor:run_callbacks("on_unequip", player, i, stack)
+					end
 				end
 			end
 			armor:save_armor_inventory(player)
