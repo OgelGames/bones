@@ -86,7 +86,7 @@ end
 local function get_all_items(player)
 	local items = {}
 	local player_inv = player:get_inventory()
-	for _,inv in pairs(bones.registered_inventories) do
+	for _, inv in pairs(bones.registered_inventories) do
 		local list
 		if type(inv) == "function" then
 			list = inv(player)
@@ -95,9 +95,9 @@ local function get_all_items(player)
 			player_inv:set_list(inv, {})
 		end
 		if list then
-			for _,stack in pairs(list) do
+			for _, stack in pairs(list) do
 				if stack:get_count() > 0 then
-					items[#items+1] = stack
+					items[#items + 1] = stack
 				end
 			end
 		end
@@ -202,7 +202,7 @@ core.register_on_dieplayer(function(player)
 bones_pos = nil
 	-- Drop items on the ground
 	if bones.mode == "drop" or not bones_pos then
-		for _,stack in pairs(items) do
+		for _, stack in ipairs(items) do
 			drop_item(pos, stack)
 		end
 		drop_item(pos, "bones:bones")
