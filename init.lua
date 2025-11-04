@@ -4,14 +4,18 @@ bones = {
 	share_time = tonumber(core.settings:get("bones_share_time")) or 1800,
 	waypoint_time = tonumber(core.settings:get("bones_waypoint_time")) or 3600,
 	mode = core.settings:get("bones_mode") or "bones",
+	fallback = core.settings:get("bones_fallback_mode") or "entity",
 	position_message = core.settings:get_bool("bones_position_message", true),
-	drop_items = core.settings:get_bool("bones_drop_items", true),
 }
 
+-- Some checks for bad settings
 if bones.mode ~= "bones" and bones.mode ~= "entity" and bones.mode ~= "drop" and bones.mode ~= "keep" then
 	bones.mode = "bones"
 end
-if bones.mode == "drop" and not bones.drop_items then
+if bones.fallback ~= "entity" and bones.fallback ~= "drop" and bones.fallback ~= "keep" then
+	bones.fallback = "entity"
+end
+if bones.mode == "drop" and bones.fallback == "drop" then
 	bones.mode = "keep"
 end
 

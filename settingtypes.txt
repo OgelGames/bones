@@ -3,8 +3,14 @@
 # - entity: Store items in an bone entity.
 # - drop: Drop items on the ground.
 # - keep: Player keeps items.
-# Each mode falls back to the lower mode if it fails.
 bones_mode (Bones mode) enum bones bones,entity,drop,keep
+
+# Sets the fallback behaviour for when bones can't be created.
+# - entity: Store items in an bone entity.
+# - drop: Drop items on the ground.
+# - keep: Player keeps items.
+Both 'entity' and 'drop' modes fallback to 'keep'.
+bones_fallback_mode (Bones mode) enum entity entity,drop,keep
 
 # The time in seconds after which the bones of a dead player can be looted by everyone.
 # Setting this to 0 will disable sharing of bones.
@@ -16,7 +22,3 @@ bones_position_message (Bones location message) bool true
 # The time in seconds that bone waypoints will be shown.
 # Setting this to 0 will disable waypoints.
 bones_waypoint_time (Waypoint lifetime) int 3600 0
-
-# Sets whether items are dropped if bones cannot be placed.
-# If false all items will be kept.
-bones_drop_items (Drop items) bool true

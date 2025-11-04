@@ -91,7 +91,9 @@ local function drop_item(pos, stack)
 			y = math.random(  1, 20) / 10,
 			z = math.random(-10, 10) / 10,
 		})
+		return true
 	end
+	return false
 end
 
 local function log_death(pos, name, action)
@@ -136,7 +138,7 @@ core.register_on_dieplayer(function(player)
 		bones_pos = find_replaceable_pos(pos)
 	end
 	-- Create bones entity
-	if bones.mode == "entity" or not bones_pos then
+	if bones.mode == "entity" or (not bones_pos and bones.fallback == "entity") then
 		local entity = core.add_entity(pos, "bones:entity")
 		if entity then
 			entity:get_luaentity():create(param2, name, inv_lists)
@@ -148,16 +150,18 @@ core.register_on_dieplayer(function(player)
 		end
 	end
 	-- Drop items on the ground
-	if bones.drop_items and (bones.mode == "drop" or not bones_pos) then
-		for _,list in ipairs(inv_lists) do
-			for _,stack in pairs(list) do
-				drop_item(pos, stack)
+	if bones.mode == "drop" or (not bones_pos and bones.fallback == "drop") then
+		if drop_item(pos, "bones:bones") then
+			for _,list in ipairs(inv_lists) do
+				for _,stack in pairs(list) do
+					drop_item(pos, stack)
+				end
 			end
+			log_death(pos, name, "drop")
+			return
 		end
-		drop_item(pos, "bones:bones")
-		log_death(pos, name, "drop")
-		return
-	elseif not bones_pos then
+	end
+	if not bones_pos then
 		log_death(pos, name, "keep")
 		return
 	end
