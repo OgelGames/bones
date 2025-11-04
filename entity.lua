@@ -89,6 +89,7 @@ core.register_entity("bones:entity", {
 	on_punch = function(self, player)
 		local name = player:get_player_name()
 		if not is_owner(self, name) then
+			core.chat_send_player(name, S("These bones belong to @1.", self.owner))
 			return true
 		end
 		-- Move as many items as possible to the player's inventory
@@ -100,6 +101,7 @@ core.register_entity("bones:entity", {
 			empty = bones.add_all_items(player, self.inventory)
 		end
 		-- Remove bones if they have been emptied
+		local pos_string = core.pos_to_string(pos)
 		if empty then
 			local player_inv = player:get_inventory()
 			if player_inv:room_for_item("main", "bones:bones") then
@@ -109,12 +111,17 @@ core.register_entity("bones:entity", {
 			end
 			self.object:remove()
 			core.sound_play("bones_dug", {gain = 0.8}, true)
+			if self.owner ~= name then
+				core.chat_send_player(name, S("You collected @1's bones at @2.", self.owner, pos_string))
+			end
+			core.log("action", name.." removes bones at "..pos_string)
+			return
 		else
 			self.punched = 1
 			core.sound_play("bones_dig", {gain = 0.9}, true)
 		end
 		-- Log the bone-taking
-		core.log("action", name.." takes items from bones at "..core.pos_to_string(pos))
+		core.log("action", name.." takes items from bones at "..pos_string)
 		return true
 	end,
 	on_step = bones.share_time > 0 and function(self, dtime)

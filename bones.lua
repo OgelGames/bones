@@ -31,13 +31,24 @@ core.register_node("bones:bones", {
 		dug = {name = "bones_dug", gain = 0.8},
 		place = {name = "bones_place", gain = 0.7},
 	},
-	can_dig = function(pos, player)
-		return core.get_meta(pos):get_inventory():is_empty("main")
+	can_dig = function(pos)
+		local inv = core.get_meta(pos):get_inventory()
+		for name in pairs(inv:get_lists()) do
+			if not inv:is_empty(name) then
+				return false
+			end
+		end
+		return true
 	end,
 	on_punch = function(pos, node, player)
 		local meta = core.get_meta(pos)
+		if meta:get_string("infotext") == "" then
+			return
+		end
+		local owner = meta:get_string("owner")
 		local name = player:get_player_name()
-		if meta:get_string("infotext") == "" or not is_owner(meta, name) then
+		if not is_owner(meta, name) then
+			core.chat_send_player(name, S("These bones belong to @1.", owner))
 			return
 		end
 		-- Move as many items as possible to the player's inventory
@@ -50,6 +61,7 @@ core.register_node("bones:bones", {
 			empty = bones.add_all_items(player, inv_lists)
 		end
 		-- Remove bones if they have been emptied
+		local pos_string = core.pos_to_string(pos)
 		if empty then
 			local player_inv = player:get_inventory()
 			if player_inv:room_for_item("main", "bones:bones") then
@@ -64,12 +76,17 @@ core.register_node("bones:bones", {
 				core.remove_node(pos)
 			end
 			core.sound_play("bones_dug", {gain = 0.8}, true)
+			if owner ~= name then
+				core.chat_send_player(name, S("You collected @1's bones at @2.", owner, pos_string))
+			end
+			core.log("action", name.." removes bones at "..pos_string)
+			return
 		else
 			meta:set_int("punched", 1)
 			inv:set_lists(inv_lists)
 		end
 		-- Log the bone-taking
-		core.log("action", name.." takes items from bones at "..core.pos_to_string(pos))
+		core.log("action", name.." takes items from bones at "..pos_string)
 	end,
 	on_timer = function(pos, elapsed)
 		local meta = core.get_meta(pos)
