@@ -102,7 +102,7 @@ local function log_death(pos, name, action)
 		core.log("action", name.." dies at "..pos_str..".")
 	elseif action == "bones" then
 		core.log("action", name.." dies at "..pos_str..". Bones placed.")
-		elseif action == "bones" then
+	elseif action == "entity" then
 		core.log("action", name.." dies at "..pos_str..". Entity created.")
 	elseif action == "drop" then
 		core.log("action", name.." dies at "..pos_str..". Inventory dropped.")
