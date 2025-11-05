@@ -6,6 +6,7 @@ bones = {
 	mode = core.settings:get("bones_mode") or "bones",
 	fallback = core.settings:get("bones_fallback_mode") or "entity",
 	position_message = core.settings:get_bool("bones_position_message", true),
+	pickup = core.settings:get_bool("bones_pickup", true),
 }
 
 -- Some checks for bad settings

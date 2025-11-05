@@ -30,8 +30,8 @@ function bones.can_collect(name, owner, elapsed)
 end
 
 function bones.collect_bones(pos, player, owner, items, punched)
-	-- Move as many items as possible to the player's inventory
 	local name = player:get_player_name()
+	-- Move as many items as possible to the player's inventory
 	local empty
 	if owner == name and not punched then
 		empty = bones.restore_all_items(player, items)
@@ -57,4 +57,34 @@ function bones.collect_bones(pos, player, owner, items, punched)
 	-- Log the bone-taking
 	core.log("action", name.." takes items from bones at "..pos_string)
 	return false
+end
+
+function bones.pickup_bones(pos, items, owner, player)
+	-- Pick up bones with items stored inside
+	local name = player:get_player_name()
+	local player_inv = player:get_inventory()
+	local has_room = false
+	for _,stack in ipairs(player_inv:get_list("main")) do
+		if stack:is_empty() then
+			has_room = true
+			break
+		end
+	end
+	if not has_room then
+		core.chat_send_player(name, S("You don't have room in your inventory for these bones."))
+		return
+	end
+	items = core.encode_base64(core.compress(core.serialize(bones.stacks_to_strings(items))), "deflate")
+	if #items > 65000 then
+		core.chat_send_player(name, S("These bones are too heavy to pick up."))
+		return
+	end
+	local stack = ItemStack("bones:bones")
+	local meta = stack:get_meta()
+	meta:set_string("items", items)
+	meta:set_string("description", S("@1's bones", owner))
+	player_inv:add_item("main", stack)
+	core.sound_play("bones_dug", {gain = 0.8}, true)
+	core.log("action", name.." picks up bones at "..core.pos_to_string(pos))
+	return true
 end

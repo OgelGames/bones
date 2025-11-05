@@ -1,9 +1,26 @@
 
 local S = core.get_translator("bones")
 
+-- From builtin/game/falling.lua, but only for the values returned from core.dir_to_facedir
+local facedir_to_euler = {
+	[ 0] = {y = 0, x = 0, z = 0},
+	[ 1] = {y = -math.pi/2, x = 0, z = 0},
+	[ 2] = {y = math.pi, x = 0, z = 0},
+	[ 3] = {y = math.pi/2, x = 0, z = 0},
+	[ 4] = {y = math.pi/2, x = -math.pi/2, z = math.pi/2},
+	[ 6] = {y = math.pi/2, x = math.pi/2, z = math.pi/2},
+	[ 8] = {y = -math.pi/2, x = math.pi/2, z = math.pi/2},
+	[10] = {y = -math.pi/2, x = -math.pi/2, z = math.pi/2},
+	[13] = {y = 0, x = -math.pi/2, z = math.pi/2},
+	[15] = {y = 0, x = math.pi/2, z = math.pi/2},
+	[17] = {y = math.pi, x = math.pi/2, z = math.pi/2},
+	[19] = {y = math.pi, x = -math.pi/2, z = math.pi/2},
+}
+
 core.register_entity("bones:entity", {
 	initial_properties = {
 		visual = "cube",
+		visual_size = {x = 1.001, y = 1.001, z = 1.001},  -- Avoid Z-fighting if placed inside a node
 		textures = {
 			"bones_top.png^[transform2",
 			"bones_bottom.png",
@@ -17,12 +34,12 @@ core.register_entity("bones:entity", {
 		collide_with_objects = true,
 		damage_texture_modifier = "",
 	},
-	rotation = 0,
+	param2 = 0,
 	items = {},
 	owner = "",
 	timer = 0,
-	create = function(self, rotation, owner, items)
-		self.rotation = rotation or 0
+	create = function(self, param2, owner, items)
+		self.param2 = param2 or 0
 		self.owner = owner or ""
 		self.items = items or {}
 		local infotext
@@ -38,10 +55,14 @@ core.register_entity("bones:entity", {
 		self.object:set_properties({
 			infotext = infotext,
 		})
+		local euler = facedir_to_euler[param2]
+		if euler then
+			self.object:set_rotation(euler)
+		end
 	end,
 	get_staticdata = function(self)
 		local data = {
-			rotation = self.rotation,
+			param2 = self.param2,
 			owner = self.owner,
 			items = bones.stacks_to_strings(self.items),
 			timer = self.timer,
@@ -52,10 +73,10 @@ core.register_entity("bones:entity", {
 	on_activate = function(self, staticdata)
 		self.object:set_armor_groups({immortal = 1})
 		local data = core.deserialize(staticdata)
-		if data and data.rotation and data.owner and data.items then
+		if data and data.param2 and data.owner and data.items then
 			self.timer = data.timer
 			self.punched = data.punched
-			self:create(data.rotation, data.owner, bones.strings_to_stacks(data.items))
+			self:create(data.param2, data.owner, bones.strings_to_stacks(data.items))
 		end
 	end,
 	on_punch = function(self, player)
@@ -65,6 +86,12 @@ core.register_entity("bones:entity", {
 			return
 		end
 		local pos = self.object:get_pos()
+		if bones.pickup and player:get_player_control().sneak then
+			if bones.pickup_bones(pos, self.items, self.owner, player) then
+				self.object:remove()
+			end
+			return
+		end
 		if bones.collect_bones(pos, player, self.owner, self.items, self.punched) then
 			self.object:remove()
 		else

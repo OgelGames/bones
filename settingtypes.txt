@@ -22,3 +22,6 @@ bones_position_message (Bones location message) bool true
 # The time in seconds that bone waypoints will be shown.
 # Setting this to 0 will disable waypoints.
 bones_waypoint_time (Waypoint lifetime) int 3600 0
+
+# Sets whether picking up bones as an item is enabled.
+bones_pickup (Pickup enabled) bool true

@@ -120,7 +120,8 @@ local function log_death(pos, name, action)
 end
 
 core.register_on_dieplayer(function(player)
-	local pos = vector.round(player:get_pos())
+	-- Move pos up to get the node the player is standing in.
+	local pos = vector.round(vector.add(player:get_pos(), vector.new(0, 0.25, 0)))
 	local name = player:get_player_name()
 	-- Do nothing if keep inventory is set or player has creative
 	if bones.mode == "keep" or core.is_creative_enabled(name) then
@@ -132,7 +133,7 @@ core.register_on_dieplayer(function(player)
 		log_death(pos, name, "none")
 		return
 	end
-	local param2 = core.dir_to_facedir(player:get_look_dir())
+	local param2 = core.dir_to_facedir(vector.multiply(player:get_look_dir(), -1), true)
 	local items = bones.take_all_items(player)
 	-- Check if it's possible to place bones
 	local bones_pos
@@ -170,7 +171,7 @@ core.register_on_dieplayer(function(player)
 		return
 	end
 	-- Place bones node
-	local replaced = core.get_node(pos)
+	local replaced = core.get_node(bones_pos)
 	core.set_node(bones_pos, {name = "bones:bones", param2 = param2})
 	local meta = core.get_meta(bones_pos)
 	meta:get_inventory():set_lists(items)
