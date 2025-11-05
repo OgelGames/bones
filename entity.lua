@@ -1,34 +1,6 @@
 
 local S = core.get_translator("bones")
 
-local function is_owner(self, name)
-	if self.timer >= bones.share_time then
-		return true
-	end
-	if self.owner == "" or self.owner == name or core.check_player_privs(name, "protection_bypass") then
-		return true
-	end
-	return false
-end
-
-local function to_strings(inventory)
-	for _,list in pairs(inventory) do
-		for i, stack in ipairs(list) do
-			list[i] = stack:to_string()
-		end
-	end
-	return inventory
-end
-
-local function to_stacks(inventory)
-	for _,list in pairs(inventory) do
-		for i, str in ipairs(list) do
-			list[i] = ItemStack(str)
-		end
-	end
-	return inventory
-end
-
 core.register_entity("bones:entity", {
 	initial_properties = {
 		visual = "cube",
@@ -46,13 +18,13 @@ core.register_entity("bones:entity", {
 		damage_texture_modifier = "",
 	},
 	rotation = 0,
-	inventory = {},
+	items = {},
 	owner = "",
 	timer = 0,
-	create = function(self, rotation, owner, inventory)
+	create = function(self, rotation, owner, items)
 		self.rotation = rotation or 0
 		self.owner = owner or ""
-		self.inventory = inventory or {}
+		self.items = items or {}
 		local infotext
 		if bones.share_time > 0 then
 			if self.timer >= bones.share_time then
@@ -71,7 +43,7 @@ core.register_entity("bones:entity", {
 		local data = {
 			rotation = self.rotation,
 			owner = self.owner,
-			inventory = to_strings(self.inventory),
+			items = bones.stacks_to_strings(self.items),
 			timer = self.timer,
 			punched = self.punched,
 		}
@@ -80,48 +52,24 @@ core.register_entity("bones:entity", {
 	on_activate = function(self, staticdata)
 		self.object:set_armor_groups({immortal = 1})
 		local data = core.deserialize(staticdata)
-		if data and data.rotation and data.owner and data.inventory then
+		if data and data.rotation and data.owner and data.items then
 			self.timer = data.timer
 			self.punched = data.punched
-			self:create(data.rotation, data.owner, to_stacks(data.inventory))
+			self:create(data.rotation, data.owner, bones.strings_to_stacks(data.items))
 		end
 	end,
 	on_punch = function(self, player)
 		local name = player:get_player_name()
-		if not is_owner(self, name) then
+		if not bones.can_collect(name, self.owner, self.timer) then
 			core.chat_send_player(name, S("These bones belong to @1.", self.owner))
-			return true
-		end
-		-- Move as many items as possible to the player's inventory
-		local pos = self.object:get_pos()
-		local empty
-		if self.owner == name and not self.punched then
-			empty = bones.restore_all_items(player, self.inventory)
-		else
-			empty = bones.add_all_items(player, self.inventory)
-		end
-		-- Remove bones if they have been emptied
-		local pos_string = core.pos_to_string(pos)
-		if empty then
-			local player_inv = player:get_inventory()
-			if player_inv:room_for_item("main", "bones:bones") then
-				player_inv:add_item("main", "bones:bones")
-			else
-				core.add_item(pos, "bones:bones")
-			end
-			self.object:remove()
-			core.sound_play("bones_dug", {gain = 0.8}, true)
-			if self.owner ~= name then
-				core.chat_send_player(name, S("You collected @1's bones at @2.", self.owner, pos_string))
-			end
-			core.log("action", name.." removes bones at "..pos_string)
 			return
+		end
+		local pos = self.object:get_pos()
+		if bones.collect_bones(pos, player, self.owner, self.items, self.punched) then
+			self.object:remove()
 		else
 			self.punched = 1
-			core.sound_play("bones_dig", {gain = 0.9}, true)
 		end
-		-- Log the bone-taking
-		core.log("action", name.." takes items from bones at "..pos_string)
 		return true
 	end,
 	on_step = bones.share_time > 0 and function(self, dtime)

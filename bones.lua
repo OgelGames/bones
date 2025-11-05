@@ -1,17 +1,6 @@
 
 local S = core.get_translator("bones")
 
-local function is_owner(meta, name)
-	if meta:get_int("time") >= bones.share_time then
-		return true
-	end
-	local owner = meta:get_string("owner")
-	if owner == "" or owner == name or core.check_player_privs(name, "protection_bypass") then
-		return true
-	end
-	return false
-end
-
 core.register_node("bones:bones", {
 	description = S("Bones"),
 	tiles = {
@@ -42,51 +31,28 @@ core.register_node("bones:bones", {
 	end,
 	on_punch = function(pos, node, player)
 		local meta = core.get_meta(pos)
-		if meta:get_string("infotext") == "" then
-			return
+		local owner = meta:get("owner")
+		if not owner then
+			return  -- Ignore empty (decorative) bones.
 		end
-		local owner = meta:get_string("owner")
 		local name = player:get_player_name()
-		if not is_owner(meta, name) then
+		if not bones.can_collect(name, owner, meta:get_int("time")) then
 			core.chat_send_player(name, S("These bones belong to @1.", owner))
 			return
 		end
-		-- Move as many items as possible to the player's inventory
 		local inv = meta:get_inventory()
-		local inv_lists = inv:get_lists()
-		local empty
-		if meta:get_string("owner") == name and not meta:get("punched") then
-			empty = bones.restore_all_items(player, inv_lists)
-		else
-			empty = bones.add_all_items(player, inv_lists)
-		end
-		-- Remove bones if they have been emptied
-		local pos_string = core.pos_to_string(pos)
-		if empty then
-			local player_inv = player:get_inventory()
-			if player_inv:room_for_item("main", "bones:bones") then
-				player_inv:add_item("main", "bones:bones")
-			else
-				core.add_item(pos, "bones:bones")
-			end
+		local items = inv:get_lists()
+		if bones.collect_bones(pos, player, owner, items, meta:get("punched")) then
 			local replaced = core.deserialize(meta:get_string("replaced"))
 			if replaced then
 				core.set_node(pos, replaced)
 			else
 				core.remove_node(pos)
 			end
-			core.sound_play("bones_dug", {gain = 0.8}, true)
-			if owner ~= name then
-				core.chat_send_player(name, S("You collected @1's bones at @2.", owner, pos_string))
-			end
-			core.log("action", name.." removes bones at "..pos_string)
-			return
 		else
 			meta:set_int("punched", 1)
-			inv:set_lists(inv_lists)
+			inv:set_lists(items)
 		end
-		-- Log the bone-taking
-		core.log("action", name.." takes items from bones at "..pos_string)
 	end,
 	on_timer = function(pos, elapsed)
 		local meta = core.get_meta(pos)
@@ -107,10 +73,9 @@ core.register_node("bones:bones", {
 	end or nil,
 	on_movenode = bones.waypoint_time > 0 and function(from_pos, to_pos)
 		local meta = core.get_meta(to_pos)
-		local owner = meta:get_string("owner")
-		-- Ignore empty (decorative) bones.
-		if owner == "" then
-			return
+		local owner = meta:get("owner")
+		if not owner then
+			return  -- Ignore empty (decorative) bones.
 		end
 		local player = core.get_player_by_name(owner)
 		if player then

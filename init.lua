@@ -15,8 +15,11 @@ end
 if bones.fallback ~= "entity" and bones.fallback ~= "drop" and bones.fallback ~= "keep" then
 	bones.fallback = "entity"
 end
-if bones.mode == "drop" and bones.fallback == "drop" then
-	bones.mode = "keep"
+if bones.mode == "entity" and bones.fallback ~= "keep" then
+	bones.fallback = "drop"
+end
+if bones.mode == "drop" then
+	bones.fallback = "keep"
 end
 
 local MP = core.get_modpath("bones")
@@ -29,6 +32,7 @@ dofile(MP.."/bones.lua")
 dofile(MP.."/entity.lua")
 dofile(MP.."/death.lua")
 dofile(MP.."/inventories.lua")
+dofile(MP.."/functions.lua")
 
 bones.register_inventory("main")
 bones.register_inventory("craft")
