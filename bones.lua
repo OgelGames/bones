@@ -10,6 +10,13 @@ local function remove_node(pos, meta)
 	end
 end
 
+local function allow_inventory_action(pos, player)
+	if not (player and player:is_player()) then return false end
+
+	return core.get_meta(pos):get_string("infotext") ~= ""
+		and is_owner(pos, player:get_player_name())
+end
+
 core.register_node("bones:bones", {
 	description = S("Bones"),
 	tiles = {
@@ -21,13 +28,13 @@ core.register_node("bones:bones", {
 		"bones_front.png"
 	},
 	paramtype2 = "facedir",
-	groups = {dig_immediate = 2},
+	groups = { dig_immediate = 2 },
 	is_ground_content = false,
 	sounds = {
-		footstep = {name = "bones_footstep", gain = 1.1},
-		dig = {name = "bones_dig", gain = 0.9},
-		dug = {name = "bones_dug", gain = 0.8},
-		place = {name = "bones_place", gain = 0.7},
+		footstep = { name = "bones_footstep", gain = 1.1 },
+		dig = { name = "bones_dig", gain = 0.9 },
+		dug = { name = "bones_dug", gain = 0.8 },
+		place = { name = "bones_place", gain = 0.7 },
 	},
 	can_dig = function(pos)
 		local inv = core.get_meta(pos):get_inventory()
@@ -64,6 +71,43 @@ core.register_node("bones:bones", {
 			inv:set_lists(items)
 		end
 	end,
+	on_rightclick = function (pos, _, player) -- pos, node, clicker, itemstack, pointed_thing
+		if not allow_inventory_action(pos, player) then
+			return
+		end
+
+		local meta = core.get_meta(pos)
+		local name = player:get_player_name()
+		local columns = core.get_modpath("mcl_core") and 9 or 8
+		local rows = math.ceil(meta:get_inventory():get_size("main") / columns)
+		local context = string.format("nodemeta:%d,%d,%d", pos.x, pos.y, pos.z)
+		local formspec = "size[" .. columns .. "," .. (rows + 4) .. "]"
+			.. "list[" .. context .. ";main;0,0;" .. columns .. "," .. rows .. ";]"
+			.. "list[current_player;main;0," .. (rows + .25) .. ";" .. columns .. ",4;]"
+			.. "listring[]"
+		core.show_formspec(name, "bones_form_" .. core.pos_to_string(pos), formspec)
+	end,
+	allow_metadata_inventory_move = function(pos, _, _, _, _, count, player)
+		if not allow_inventory_action(pos, player) then
+			return 0
+		end
+
+		return count
+	end,
+	allow_metadata_inventory_put = function(pos, _, _, stack, player)
+		if not allow_inventory_action(pos, player) then
+			return 0
+		end
+
+		return stack:get_count()
+	end,
+	allow_metadata_inventory_take = function(pos, _, _, stack, player)
+		if not allow_inventory_action(pos, player) then
+			return 0
+		end
+
+		return stack:get_count()
+	end,
 	on_timer = function(pos, elapsed)
 		local meta = core.get_meta(pos)
 		local t = meta:get_int("time") + elapsed
@@ -99,6 +143,7 @@ core.register_node("bones:bones", {
 		if not owner then
 			return  -- Ignore empty (decorative) bones.
 		end
+
 		local player = core.get_player_by_name(owner)
 		if player then
 			bones.remove_waypoint(from_pos, player)
@@ -106,7 +151,7 @@ core.register_node("bones:bones", {
 		end
 		local from = core.pos_to_string(from_pos)
 		local to = core.pos_to_string(to_pos)
-		core.log("action", "Bones of "..owner.." moved from "..from.." to "..to)
+		core.log("action", "Bones of " .. owner .. " moved from " .. from .. " to " .. to)
 	end or nil,
 	on_blast = function() end,
 })
