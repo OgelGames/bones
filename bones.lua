@@ -13,8 +13,10 @@ end
 local function allow_inventory_action(pos, player)
 	if not (player and player:is_player()) then return false end
 
-	return core.get_meta(pos):get_string("infotext") ~= ""
-		and is_owner(pos, player:get_player_name())
+	local meta = core.get_meta(pos)
+	return meta:get_string("infotext") ~= ""
+		and bones.can_collect(player:get_player_name(), meta:get_string("owner"),
+			meta:get_int("time"))
 end
 
 core.register_node("bones:bones", {
@@ -71,21 +73,12 @@ core.register_node("bones:bones", {
 			inv:set_lists(items)
 		end
 	end,
-	on_rightclick = function (pos, _, player) -- pos, node, clicker, itemstack, pointed_thing
+	on_rightclick = function (pos, _, player)
 		if not allow_inventory_action(pos, player) then
 			return
 		end
 
-		local meta = core.get_meta(pos)
-		local name = player:get_player_name()
-		local columns = core.get_modpath("mcl_core") and 9 or 8
-		local rows = math.ceil(meta:get_inventory():get_size("main") / columns)
-		local context = string.format("nodemeta:%d,%d,%d", pos.x, pos.y, pos.z)
-		local formspec = "size[" .. columns .. "," .. (rows + 4) .. "]"
-			.. "list[" .. context .. ";main;0,0;" .. columns .. "," .. rows .. ";]"
-			.. "list[current_player;main;0," .. (rows + .25) .. ";" .. columns .. ",4;]"
-			.. "listring[]"
-		core.show_formspec(name, "bones_form_" .. core.pos_to_string(pos), formspec)
+		bones.show_formspec(pos, player)
 	end,
 	allow_metadata_inventory_move = function(pos, _, _, _, _, count, player)
 		if not allow_inventory_action(pos, player) then

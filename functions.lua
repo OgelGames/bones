@@ -88,3 +88,45 @@ function bones.pickup_bones(pos, items, owner, player)
 	core.log("action", name.." picks up bones at "..core.pos_to_string(pos))
 	return true
 end
+
+function bones.show_formspec(pos, player)
+		local meta = core.get_meta(pos)
+		local name = player:get_player_name()
+		local columns = core.get_modpath("mcl_core") and 9 or 8
+		local rows_player = math.ceil(player:get_inventory():get_size("main") / columns)
+		local inv = meta:get_inventory()
+		local rows_armor = math.ceil(inv:get_size("armor") / columns)
+		local rows_craft = math.ceil(inv:get_size("craft") / columns)
+		local rows_main = math.ceil(inv:get_size("main") / columns)
+		local context = string.format("nodemeta:%d,%d,%d", pos.x, pos.y, pos.z)
+		local formspec = ""
+		local y = 0
+		local height = rows_player
+		if 0 < rows_armor then
+			formspec = formspec .. "list[" .. context .. ";armor;0," .. y .. ";"
+				.. columns .. "," .. rows_armor .. ";]"
+				.. "listring[" .. context .. ";armor]"
+				.. "listring[current_player;main]"
+			y = y + rows_armor + .25
+		end
+		if 0 < rows_craft then
+			formspec = formspec .. "list[" .. context .. ";craft;0," .. y .. ";"
+				.. columns .. "," .. rows_craft .. ";]"
+				.. "listring[" .. context .. ";craft]"
+				.. "listring[current_player;main]"
+			y = y + rows_craft + .25
+		end
+		if 0 < rows_main then
+			formspec = formspec .. "list[" .. context .. ";main;0," .. y .. ";"
+				.. columns .. "," .. rows_main .. ";]"
+				.. "listring[" .. context .. ";main]"
+				.. "listring[current_player;main]"
+			y = y + rows_main + .25
+		end
+		formspec = formspec	.. "list[current_player;main;0," .. y .. ";"
+			.. columns .. "," .. rows_player .. ";]"
+			.. "listring[]"
+		formspec = "size[" .. columns .. "," .. (y + rows_player) .. "]" .. formspec
+		core.show_formspec(name, "bones_form_" .. core.pos_to_string(pos), formspec)
+end
+
