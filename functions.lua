@@ -101,7 +101,6 @@ function bones.show_formspec(pos, player)
 		local context = string.format("nodemeta:%d,%d,%d", pos.x, pos.y, pos.z)
 		local formspec = ""
 		local y = 0
-		local height = rows_player
 		if 0 < rows_armor then
 			formspec = formspec .. "list[" .. context .. ";armor;0," .. y .. ";"
 				.. columns .. "," .. rows_armor .. ";]"
