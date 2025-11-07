@@ -99,6 +99,9 @@ core.register_entity("bones:entity", {
 		end
 		return true
 	end,
+	on_rightclick = function(self, player)
+		bones.show_formspec(self.object:get_pos(), player, self.items)
+	end,
 	on_step = bones.share_time > 0 and function(self, dtime)
 		if self.timer >= bones.share_time then
 			return

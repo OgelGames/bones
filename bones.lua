@@ -10,15 +10,6 @@ local function remove_node(pos, meta)
 	end
 end
 
-local function allow_inventory_action(pos, player)
-	if not (player and player:is_player()) then return false end
-
-	local meta = core.get_meta(pos)
-	return meta:get_string("infotext") ~= ""
-		and bones.can_collect(player:get_player_name(), meta:get_string("owner"),
-			meta:get_int("time"))
-end
-
 core.register_node("bones:bones", {
 	description = S("Bones"),
 	tiles = {
@@ -74,32 +65,7 @@ core.register_node("bones:bones", {
 		end
 	end,
 	on_rightclick = function (pos, _, player)
-		if not allow_inventory_action(pos, player) then
-			return
-		end
-
-		bones.show_formspec(pos, player)
-	end,
-	allow_metadata_inventory_move = function(pos, _, _, _, _, count, player)
-		if not allow_inventory_action(pos, player) then
-			return 0
-		end
-
-		return count
-	end,
-	allow_metadata_inventory_put = function(pos, _, _, stack, player)
-		if not allow_inventory_action(pos, player) then
-			return 0
-		end
-
-		return stack:get_count()
-	end,
-	allow_metadata_inventory_take = function(pos, _, _, stack, player)
-		if not allow_inventory_action(pos, player) then
-			return 0
-		end
-
-		return stack:get_count()
+		bones.show_formspec(pos, player, core.get_meta(pos):get_inventory():get_lists())
 	end,
 	on_timer = function(pos, elapsed)
 		local meta = core.get_meta(pos)
