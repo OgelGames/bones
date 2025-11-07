@@ -22,7 +22,7 @@ end
 function bones.add_waypoint(pos, player)
 	local meta = player:get_meta()
 	local waypoints = core.deserialize(meta:get_string("bone_waypoints")) or {}
-	local pos_string = core.pos_to_string(pos)
+	local pos_string = core.pos_to_string(pos):gsub("-0", "0")
 	if not waypoints[pos_string] then
 		waypoints[pos_string] = {
 			pos = pos,
@@ -36,7 +36,7 @@ end
 function bones.remove_waypoint(pos, player)
 	local meta = player:get_meta()
 	local waypoints = core.deserialize(meta:get_string("bone_waypoints")) or {}
-	local pos_string = core.pos_to_string(pos)
+	local pos_string = core.pos_to_string(pos):gsub("-0", "0")
 	if waypoints[pos_string] then
 		player:hud_remove(waypoints[pos_string].id)
 		waypoints[pos_string] = nil
@@ -46,21 +46,11 @@ end
 
 core.register_on_joinplayer(function(player)
 	local meta = player:get_meta()
-	local name = player:get_player_name()
 	local waypoints = core.deserialize(meta:get_string("bone_waypoints")) or {}
 	local current_time = os.time()
 	for pos_string, waypoint in pairs(waypoints) do
 		if current_time < waypoint.expiry then
-			local node = core.get_node_or_nil(waypoint.pos)
-			if not node then
-				core.load_area(waypoint.pos)
-				node = core.get_node(waypoint.pos)
-			end
-			if node.name == "bones:bones" and core.get_meta(waypoint.pos):get_string("owner") == name then
-				add_to_hud(player, waypoint)
-			else
-				waypoints[pos_string] = nil
-			end
+			add_to_hud(player, waypoint)
 		else
 			waypoints[pos_string] = nil
 		end

@@ -11,9 +11,13 @@ A redo of the bones mod from Minetest Game.
 ## Improvements from MTG
 
 - **Dynamically sized inventory** - To fit ALL your items.
-- **Better bone generation** - Always finds somewhere to place bones, 99% guaranteed.
-- **Waypoints** - Bones are marked by a waypoint for some time.
-- **New textures** - More detailed and... well, that's about it.
+- **Inventory restoration** - Items return to the original places when collecting bones.
+- **Better bone generation** - Always finds somewhere to place bones, 98% guaranteed.
+- **No lost items** - Bones have multiple fallback modes and if they all fail you keep your items.
+- **Bone pickup** - Bones can be picked up with items inside using sneak+punch.
+- **Waypoints** - Bones are marked by a waypoint for a configurable amount of time.
+- **Game independent** - Doesn't depend on the `default` mod.
+- **New textures** - More detailed and... better.
 - **Custom sounds** - Because bones are not made of gravel.
 
 ## Dependencies
