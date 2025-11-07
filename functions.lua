@@ -94,8 +94,7 @@ function bones.show_formspec(pos, player, items)
 		return
 	end
 
-	local rows = 0
-	local x, y, itemname = 0, 0, ""
+	local x, y, itemname = 0, 0
 	local formspec = ""
 	local compacted = {}
 	local columns = core.get_modpath("mcl_core") and 9 or 8
