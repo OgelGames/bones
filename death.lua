@@ -134,7 +134,6 @@ core.register_on_dieplayer(function(player)
 		return
 	end
 	local param2 = core.dir_to_facedir(vector.multiply(player:get_look_dir(), -1), true)
-	local items = bones.take_all_items(player)
 	-- Check if it's possible to place bones
 	local bones_pos
 	if bones.mode == "bones" then
@@ -144,7 +143,7 @@ core.register_on_dieplayer(function(player)
 	if bones.mode == "entity" or (not bones_pos and bones.fallback == "entity") then
 		local entity = core.add_entity(pos, "bones:entity")
 		if entity then
-			entity:get_luaentity():create(param2, name, items)
+			entity:get_luaentity():create(param2, name, bones.take_all_items(player))
 			log_death(pos, name, "entity")
 			if bones.waypoint_time > 0 then
 				bones.add_waypoint(pos, player)
@@ -155,7 +154,7 @@ core.register_on_dieplayer(function(player)
 	-- Drop items on the ground
 	if bones.mode == "drop" or (not bones_pos and bones.fallback == "drop") then
 		if drop_item(pos, "bones:bones") then
-			for _,list in pairs(items) do
+			for _,list in pairs(bones.take_all_items(player)) do
 				for _,stack in ipairs(list) do
 					if not stack:is_empty() then
 						drop_item(pos, stack)
@@ -174,7 +173,7 @@ core.register_on_dieplayer(function(player)
 	local replaced = core.get_node(bones_pos)
 	core.set_node(bones_pos, {name = "bones:bones", param2 = param2})
 	local meta = core.get_meta(bones_pos)
-	meta:get_inventory():set_lists(items)
+	meta:get_inventory():set_lists(bones.take_all_items(player))
 	meta:set_string("owner", name)
 	if replaced.name ~= "air" then
 		meta:set_string("replaced", core.serialize(replaced))
