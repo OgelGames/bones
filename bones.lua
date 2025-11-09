@@ -86,14 +86,14 @@ core.register_node("bones:bones", {
 		meta:get_inventory():set_lists(items)
 		meta:set_string("infotext", stack:get_description())
 	end or nil,
-	on_destruct = bones.waypoint_time > 0 and function(pos)
+	on_destruct = bones.waypoints and function(pos)
 		local name = core.get_meta(pos):get_string("owner")
 		local player = core.get_player_by_name(name)
 		if player then
 			bones.remove_waypoint(pos, player)
 		end
 	end or nil,
-	on_movenode = bones.waypoint_time > 0 and function(from_pos, to_pos)
+	on_movenode = bones.waypoints and function(from_pos, to_pos)
 		local meta = core.get_meta(to_pos)
 		local owner = meta:get("owner")
 		if not owner then

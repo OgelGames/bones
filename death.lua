@@ -96,7 +96,7 @@ local function drop_item(pos, stack)
 	return false
 end
 
-local function log_death(pos, name, action)
+local function log_death(pos, name, action, items, player)
 	local pos_str = core.pos_to_string(pos)
 	if action == "keep" or action == "none" then
 		core.log("action", name.." dies at "..pos_str..".")
@@ -107,15 +107,18 @@ local function log_death(pos, name, action)
 	elseif action == "drop" then
 		core.log("action", name.." dies at "..pos_str..". Inventory dropped.")
 	end
-	if not bones.position_message then
-		return
+	if bones.position_message then
+		if action == "keep" or action == "none" then
+			core.chat_send_player(name, S("You died at @1.", pos_str))
+		elseif action == "bones" or action == "entity" then
+			core.chat_send_player(name, S("You died at @1. Bones were placed.", pos_str))
+		elseif action == "drop" then
+			core.chat_send_player(name, S("You died at @1. Your inventory was dropped.", pos_str))
+		end
 	end
-	if action == "keep" or action == "none" then
-		core.chat_send_player(name, S("You died at @1.", pos_str))
-	elseif action == "bones" or action == "entity" then
-		core.chat_send_player(name, S("You died at @1. Bones were placed.", pos_str))
-	elseif action == "drop" then
-		core.chat_send_player(name, S("You died at @1. Your inventory was dropped.", pos_str))
+	if bones.obituary and items and player:get_meta():get("bones_obituary") ~= "0" then
+		local obituary = bones.create_obituary(pos_str, name, items)
+		player:get_inventory():add_item("main", obituary)
 	end
 end
 
@@ -143,9 +146,10 @@ core.register_on_dieplayer(function(player)
 	if bones.mode == "entity" or (not bones_pos and bones.fallback == "entity") then
 		local entity = core.add_entity(pos, "bones:entity")
 		if entity then
-			entity:get_luaentity():create(param2, name, bones.take_all_items(player))
-			log_death(pos, name, "entity")
-			if bones.waypoint_time > 0 then
+			local items = bones.take_all_items(player)
+			entity:get_luaentity():create(param2, name, items)
+			log_death(pos, name, "entity", items, player)
+			if bones.waypoints then
 				bones.add_waypoint(pos, player)
 			end
 			return
@@ -154,14 +158,15 @@ core.register_on_dieplayer(function(player)
 	-- Drop items on the ground
 	if bones.mode == "drop" or (not bones_pos and bones.fallback == "drop") then
 		if drop_item(pos, "bones:bones") then
-			for _,list in pairs(bones.take_all_items(player)) do
+			local items = bones.take_all_items(player)
+			for _,list in pairs(items) do
 				for _,stack in ipairs(list) do
 					if not stack:is_empty() then
 						drop_item(pos, stack)
 					end
 				end
 			end
-			log_death(pos, name, "drop")
+			log_death(pos, name, "drop", items, player)
 			return
 		end
 	end
@@ -173,19 +178,20 @@ core.register_on_dieplayer(function(player)
 	local replaced = core.get_node(bones_pos)
 	core.set_node(bones_pos, {name = "bones:bones", param2 = param2})
 	local meta = core.get_meta(bones_pos)
-	meta:get_inventory():set_lists(bones.take_all_items(player))
+	local items = bones.take_all_items(player)
+	meta:get_inventory():set_lists(items)
 	meta:set_string("owner", name)
 	if replaced.name ~= "air" then
 		meta:set_string("replaced", core.serialize(replaced))
 	end
-	if bones.share_time > 0 then
+	if bones.sharing then
 		meta:set_string("infotext", S("@1's fresh bones", name))
 		core.get_node_timer(bones_pos):start(10)
 	else
 		meta:set_string("infotext", S("@1's bones", name))
 	end
-	log_death(bones_pos, name, "bones")
-	if bones.waypoint_time > 0 then
+	log_death(bones_pos, name, "bones", items, player)
+	if bones.waypoints then
 		bones.add_waypoint(bones_pos, player)
 	end
 end)

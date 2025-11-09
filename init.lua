@@ -7,7 +7,11 @@ bones = {
 	fallback = core.settings:get("bones_fallback_mode") or "entity",
 	position_message = core.settings:get_bool("bones_position_message", true),
 	pickup = core.settings:get_bool("bones_pickup", true),
+	obituary = core.settings:get_bool("bones_obituary", true),
 }
+
+bones.waypoints = bones.waypoint_time > 0
+bones.sharing = bones.share_time > 0
 
 -- Some checks for bad settings
 if bones.mode ~= "bones" and bones.mode ~= "entity" and bones.mode ~= "drop" and bones.mode ~= "keep" then
@@ -25,12 +29,13 @@ end
 
 local MP = core.get_modpath("bones")
 
-if bones.waypoint_time > 0 then
+if bones.waypoints then
 	dofile(MP.."/waypoints.lua")
 end
 
 dofile(MP.."/bones.lua")
 dofile(MP.."/entity.lua")
+dofile(MP.."/obituary.lua")
 dofile(MP.."/death.lua")
 dofile(MP.."/inventories.lua")
 dofile(MP.."/functions.lua")

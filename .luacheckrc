@@ -9,4 +9,5 @@ read_globals = {
 	"ItemStack",
 	"vector",
 	"armor",
+	"xcompat",
 }

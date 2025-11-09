@@ -22,24 +22,24 @@ end
 function bones.add_waypoint(pos, player)
 	local meta = player:get_meta()
 	local waypoints = core.deserialize(meta:get_string("bone_waypoints")) or {}
-	local pos_string = core.pos_to_string(pos):gsub("-0", "0")
-	if not waypoints[pos_string] then
-		waypoints[pos_string] = {
+	local pos_str = core.pos_to_string(pos):gsub("-0", "0")
+	if not waypoints[pos_str] then
+		waypoints[pos_str] = {
 			pos = pos,
 			expiry = os.time() + bones.waypoint_time,
 		}
 	end
-	add_to_hud(player, waypoints[pos_string])
+	add_to_hud(player, waypoints[pos_str])
 	meta:set_string("bone_waypoints", core.serialize(waypoints))
 end
 
 function bones.remove_waypoint(pos, player)
 	local meta = player:get_meta()
 	local waypoints = core.deserialize(meta:get_string("bone_waypoints")) or {}
-	local pos_string = core.pos_to_string(pos):gsub("-0", "0")
-	if waypoints[pos_string] then
-		player:hud_remove(waypoints[pos_string].id)
-		waypoints[pos_string] = nil
+	local pos_str = core.pos_to_string(pos):gsub("-0", "0")
+	if waypoints[pos_str] then
+		player:hud_remove(waypoints[pos_str].id)
+		waypoints[pos_str] = nil
 		meta:set_string("bone_waypoints", core.serialize(waypoints))
 	end
 end
@@ -48,11 +48,11 @@ core.register_on_joinplayer(function(player)
 	local meta = player:get_meta()
 	local waypoints = core.deserialize(meta:get_string("bone_waypoints")) or {}
 	local current_time = os.time()
-	for pos_string, waypoint in pairs(waypoints) do
+	for pos_str, waypoint in pairs(waypoints) do
 		if current_time < waypoint.expiry then
 			add_to_hud(player, waypoint)
 		else
-			waypoints[pos_string] = nil
+			waypoints[pos_str] = nil
 		end
 	end
 	meta:set_string("bone_waypoints", core.serialize(waypoints))

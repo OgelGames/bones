@@ -43,7 +43,7 @@ core.register_entity("bones:entity", {
 		self.owner = owner or ""
 		self.items = items or {}
 		local infotext
-		if bones.share_time > 0 then
+		if bones.sharing then
 			if self.timer >= bones.share_time then
 				infotext = S("@1's old bones", owner)
 			else
@@ -99,7 +99,7 @@ core.register_entity("bones:entity", {
 		end
 		return true
 	end,
-	on_step = bones.share_time > 0 and function(self, dtime)
+	on_step = bones.sharing and function(self, dtime)
 		if self.timer >= bones.share_time then
 			return
 		end
@@ -110,7 +110,7 @@ core.register_entity("bones:entity", {
 			})
 		end
 	end or nil,
-	on_deactivate = bones.waypoint_time > 0 and function(self, removal)
+	on_deactivate = bones.waypoints and function(self, removal)
 		if not removal then
 			return
 		end

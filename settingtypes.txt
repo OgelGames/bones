@@ -16,12 +16,16 @@ bones_fallback_mode (Bones mode) enum entity entity,drop,keep
 # Setting this to 0 will disable sharing of bones.
 bones_share_time (Bones share time) int 1800 0
 
-# Inform player of location and condition of new bones.
-bones_position_message (Bones location message) bool true
-
 # The time in seconds that bone waypoints will be shown.
 # Setting this to 0 will disable waypoints.
 bones_waypoint_time (Waypoint lifetime) int 3600 0
 
+# Inform player of location and condition of new bones.
+bones_position_message (Bones location message) bool true
+
 # Sets whether picking up bones as an item is enabled.
 bones_pickup (Pickup enabled) bool true
+
+# If enabled players will receive an obituary with the time, location of death and list of items.
+# Players can also opt-out of receiving an obituary with the /obituary command.
+bones_obituary (Obituary enabled) bool true
