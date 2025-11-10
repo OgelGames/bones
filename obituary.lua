@@ -6,19 +6,19 @@ local formspec = [[
 	size[5.4,7.8]
 	bgcolor[#0000;both]
 	background[-0.5,-0.1;6,8;bones_obituary_ui.png]
-	hypertext[0,0.2;5.4,2;help;<style color=#0e0e0e><center><big>Obituary</big></center>]
+	hypertext[0,0.2;5.4,2;;<style color=#0e0e0e><center><big>Obituary</big></center>]
 	style[*;textcolor=#0e0e0e]
 	label[0.25,1;5/2,1;Name:  %s]
 	label[0.25,1.5;5/2,1;Time:  %s]
-	label[0.25,2;5/2,1;Location:  X=%d, Y=%d, Z=%d]
+	label[0.25,2;5/2,1;Location:  X: %d  Y: %d  Z: %d]
 	label[0.25,2.5;5/2,1;Inventory at death:]
 	textarea[0.2,3;5.1,4.7;;%s;]
 ]]
 
-local function show_obituary_formspec(stack, player, pointed)
+local function show_obituary_formspec(stack, player)
 	local meta = stack:get_meta()
 	local name = meta:get_string("name")
-	local time = os.date("!%Y-%m-%dT%H:%M:%SZ", tonumber(meta:get_string("time")) or 0)
+	local time = os.date("%Y/%m/%d  %H:%M:%S", tonumber(meta:get_string("time")) or 0)
 	local pos = core.string_to_pos(meta:get_string("pos")) or vector.zero
 	local items = meta:get_string("items")
 	local fs = formspec:format(name, time, pos.x, pos.y, pos.z, items)

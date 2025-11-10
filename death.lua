@@ -116,6 +116,9 @@ local function log_death(pos, name, action, items, player)
 			core.chat_send_player(name, S("You died at @1. Your inventory was dropped.", pos_str))
 		end
 	end
+	if action == "keep" or action == "none" then
+		return
+	end
 	if bones.obituary and items and player:get_meta():get("bones_obituary") ~= "0" then
 		local obituary = bones.create_obituary(pos_str, name, items)
 		player:get_inventory():add_item("main", obituary)
