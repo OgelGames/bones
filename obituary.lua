@@ -1,19 +1,16 @@
 
 local S = core.get_translator("bones")
 
-local formspec = [[
-	formspec_version[2]
-	size[5.4,7.8]
-	bgcolor[#0000;both]
-	background[-0.5,-0.1;6,8;bones_obituary_ui.png]
-	hypertext[0,0.2;5.4,2;;<style color=#0e0e0e><center><big>Obituary</big></center>]
-	style[*;textcolor=#0e0e0e]
-	label[0.25,1;5/2,1;Name:  %s]
-	label[0.25,1.5;5/2,1;Time:  %s]
-	label[0.25,2;5/2,1;Location:  X: %d  Y: %d  Z: %d]
-	label[0.25,2.5;5/2,1;Inventory at death:]
-	textarea[0.2,3;5.1,4.7;;%s;]
-]]
+local formspec = "formspec_version[2]"..
+	"size[5.4,7.8]"..
+	"background[-0.5,-0.1;6,8;bones_obituary_ui.png]"..
+	"hypertext[0,0.2;5.4,2;;<style color=#0e0e0e><center><big>"..S("Obituary").."</big></center>]"..
+	"style[*;textcolor=#0e0e0e]"..
+	"label[0.25,1;5/2,1;"..S("Name")..":  %s]"..
+	"label[0.25,1.5;5/2,1;"..S("Time")..":  %s]"..
+	"label[0.25,2;5/2,1;"..S("Location")..":  X: %d  Y: %d  Z: %d]"..
+	"label[0.25,2.5;5/2,1;"..S("Inventory at death")..":]"..
+	"textarea[0.2,3;5.1,4.7;;%s;]"
 
 local function show_obituary_formspec(stack, player)
 	local meta = stack:get_meta()
@@ -71,7 +68,7 @@ end
 
 core.register_chatcommand("obituary", {
 	description = S("Toggle receiving an obituary when you die."),
-	func = function(name, param)
+	func = function(name)
 		local player = core.get_player_by_name(name)
 		if not player then
 			return false
@@ -79,10 +76,10 @@ core.register_chatcommand("obituary", {
 		local meta = player:get_meta()
 		if meta:get("bones_obituary") ~= "0" then
 			meta:set_int("bones_obituary", 0)
-			return true, S("You will not receive an obituary when you die.")
+			return true, S("Obituary disabled.")
 		else
 			meta:set_int("bones_obituary", 1)
-			return true, S("You will receive an obituary when you die.")
+			return true, S("Obituary enabled.")
 		end
 	end,
 })
