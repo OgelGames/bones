@@ -25,6 +25,7 @@ end
 core.register_craftitem("bones:obituary", {
 	description = S("Obituary"),
 	inventory_image = "bones_obituary.png",
+	groups = {flammable = 3},  -- Obituaries are made of paper which is flammable
 	on_use = show_obituary_formspec,
 	on_secondary_use = show_obituary_formspec,
 	on_rightclick = show_obituary_formspec,
