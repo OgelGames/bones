@@ -83,28 +83,6 @@ local function find_replaceable_pos(origin)
 	end end end
 end
 
-local function get_all_items(player)
-	local items = {}
-	local player_inv = player:get_inventory()
-	for _,inv in pairs(bones.registered_inventories) do
-		local list
-		if type(inv) == "function" then
-			list = inv(player)
-		else
-			list = player_inv:get_list(inv)
-			player_inv:set_list(inv, {})
-		end
-		if list then
-			for _,stack in pairs(list) do
-				if stack:get_count() > 0 then
-					items[#items+1] = stack
-				end
-			end
-		end
-	end
-	return items
-end
-
 local function drop_item(pos, stack)
 	local obj = core.add_item(pos, stack)
 	if obj then
@@ -113,32 +91,43 @@ local function drop_item(pos, stack)
 			y = math.random(  1, 20) / 10,
 			z = math.random(-10, 10) / 10,
 		})
+		return true
 	end
+	return false
 end
 
-local function log_death(pos, name, action)
+local function log_death(pos, name, action, items, player)
 	local pos_str = core.pos_to_string(pos)
 	if action == "keep" or action == "none" then
-		core.log("action", name.." dies at "..pos_str..". No bones placed.")
+		core.log("action", name.." dies at "..pos_str..".")
 	elseif action == "bones" then
 		core.log("action", name.." dies at "..pos_str..". Bones placed.")
+	elseif action == "entity" then
+		core.log("action", name.." dies at "..pos_str..". Entity created.")
 	elseif action == "drop" then
 		core.log("action", name.." dies at "..pos_str..". Inventory dropped.")
 	end
-	if not bones.position_message then
-		return
+	if bones.position_message then
+		if action == "keep" or action == "none" then
+			core.chat_send_player(name, S("You died at @1.", pos_str))
+		elseif action == "bones" or action == "entity" then
+			core.chat_send_player(name, S("You died at @1. Bones were placed.", pos_str))
+		elseif action == "drop" then
+			core.chat_send_player(name, S("You died at @1. Your inventory was dropped.", pos_str))
+		end
 	end
 	if action == "keep" or action == "none" then
-		core.chat_send_player(name, S("You died at @1.", pos_str))
-	elseif action == "bones" then
-		core.chat_send_player(name, S("You died at @1. Bones were placed.", pos_str))
-	elseif action == "drop" then
-		core.chat_send_player(name, S("You died at @1. Your inventory was dropped.", pos_str))
+		return
+	end
+	if bones.obituary and items and player:get_meta():get("bones_obituary") ~= "0" then
+		local obituary = bones.create_obituary(pos_str, name, items)
+		player:get_inventory():add_item("main", obituary)
 	end
 end
 
 core.register_on_dieplayer(function(player)
-	local pos = vector.round(player:get_pos())
+	-- Move pos up to get the node the player is standing in.
+	local pos = vector.round(vector.add(player:get_pos(), vector.new(0, 0.25, 0)))
 	local name = player:get_player_name()
 	-- Do nothing if keep inventory is set or player has creative
 	if bones.mode == "keep" or core.is_creative_enabled(name) then
@@ -146,42 +135,66 @@ core.register_on_dieplayer(function(player)
 		return
 	end
 	-- Check if player has items, do nothing if they don't
-	local items = get_all_items(player)
-	if #items == 0 then
+	if not bones.has_any_items(player) then
 		log_death(pos, name, "none")
 		return
 	end
+	local param2 = core.dir_to_facedir(vector.multiply(player:get_look_dir(), -1), true)
 	-- Check if it's possible to place bones
 	local bones_pos
 	if bones.mode == "bones" then
 		bones_pos = find_replaceable_pos(pos)
 	end
-	-- Drop items on the ground
-	if bones.mode == "drop" or not bones_pos then
-		for _,stack in pairs(items) do
-			drop_item(pos, stack)
+	-- Create bones entity
+	if bones.mode == "entity" or (not bones_pos and bones.fallback == "entity") then
+		local entity = core.add_entity(pos, "bones:entity")
+		if entity then
+			local items = bones.take_all_items(player)
+			entity:get_luaentity():create(param2, name, items)
+			log_death(pos, name, "entity", items, player)
+			if bones.waypoints then
+				bones.add_waypoint(pos, player)
+			end
+			return
 		end
-		drop_item(pos, "bones:bones")
-		log_death(pos, name, "drop")
+	end
+	-- Drop items on the ground
+	if bones.mode == "drop" or (not bones_pos and bones.fallback == "drop") then
+		if drop_item(pos, "bones:bones") then
+			local items = bones.take_all_items(player)
+			for _,list in pairs(items) do
+				for _,stack in ipairs(list) do
+					if not stack:is_empty() then
+						drop_item(pos, stack)
+					end
+				end
+			end
+			log_death(pos, name, "drop", items, player)
+			return
+		end
+	end
+	if not bones_pos then
+		log_death(pos, name, "keep")
 		return
 	end
-	-- Place bones
-	local param2 = core.dir_to_facedir(player:get_look_dir())
+	-- Place bones node
+	local replaced = core.get_node(bones_pos)
 	core.set_node(bones_pos, {name = "bones:bones", param2 = param2})
 	local meta = core.get_meta(bones_pos)
-	local inv = meta:get_inventory()
-	inv:set_size("main", #items)
-	inv:set_list("main", items)
-	if bones.share_time > 0 then
+	local items = bones.take_all_items(player)
+	meta:get_inventory():set_lists(items)
+	meta:set_string("owner", name)
+	if replaced.name ~= "air" then
+		meta:set_string("replaced", core.serialize(replaced))
+	end
+	if bones.sharing then
 		meta:set_string("infotext", S("@1's fresh bones", name))
-		meta:set_string("owner", name)
 		core.get_node_timer(bones_pos):start(10)
 	else
 		meta:set_string("infotext", S("@1's bones", name))
 	end
-	log_death(bones_pos, name, "bones")
-	-- Add waypoint
-	if bones.waypoint_time > 0 then
+	log_death(bones_pos, name, "bones", items, player)
+	if bones.waypoints then
 		bones.add_waypoint(bones_pos, player)
 	end
 end)

@@ -1,16 +1,31 @@
 # Sets the behaviour of bones when a player dies.
-# - bones: Store items in a bone node where possible, otherwise drop items.
+# - bones: Store items in a bone node where possible.
+# - entity: Store items in an bone entity.
 # - drop: Drop items on the ground.
 # - keep: Player keeps items.
-bones_mode (Bones mode) enum bones bones,drop,keep
+bones_mode (Bones mode) enum bones bones,entity,drop,keep
+
+# Sets the fallback behaviour for when bones can't be created.
+# - entity: Store items in an bone entity.
+# - drop: Drop items on the ground.
+# - keep: Player keeps items.
+# Both 'entity' and 'drop' modes fallback to 'keep'.
+bones_fallback_mode (Bones mode) enum entity entity,drop,keep
 
 # The time in seconds after which the bones of a dead player can be looted by everyone.
-# Setting this to 0 will disable sharing of bones completely.
-bones_share_time (Bones share time) int 1200 0
-
-# Inform player of location and condition of new bones.
-bones_position_message (Bones message) bool true
+# Setting this to 0 will disable sharing of bones.
+bones_share_time (Bones share time) int 1800 0
 
 # The time in seconds that bone waypoints will be shown.
 # Setting this to 0 will disable waypoints.
-bones_waypoint_time (Bones waypoint time) int 3600 0
+bones_waypoint_time (Waypoint lifetime) int 3600 0
+
+# Inform player of location and condition of new bones.
+bones_position_message (Bones location message) bool true
+
+# Sets whether picking up bones as an item is enabled.
+bones_pickup (Pickup enabled) bool true
+
+# If enabled players will receive an obituary with the time, location of death and list of items.
+# Players can also opt-out of receiving an obituary with the /obituary command.
+bones_obituary (Obituary enabled) bool true
