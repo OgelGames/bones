@@ -6,10 +6,10 @@ local formspec = "formspec_version[2]"..
 	"background[-0.5,-0.1;6,8;bones_obituary_ui.png]"..
 	"hypertext[0,0.2;5.4,2;;<style color=#0e0e0e><center><big>"..S("Obituary").."</big></center>]"..
 	"style[*;textcolor=#0e0e0e]"..
-	"label[0.25,1;5/2,1;"..S("Name")..":  %s]"..
-	"label[0.25,1.5;5/2,1;"..S("Time")..":  %s]"..
-	"label[0.25,2;5/2,1;"..S("Location")..":  X: %d  Y: %d  Z: %d]"..
-	"label[0.25,2.5;5/2,1;"..S("Inventory at death")..":]"..
+	"label[0.25,1;"..S("Name")..":  %s]"..
+	"label[0.25,1.5;"..S("Time")..":  %s]"..
+	"label[0.25,2;"..S("Location")..":  X: %d  Y: %d  Z: %d]"..
+	"label[0.25,2.5;"..S("Inventory at death")..":]"..
 	"textarea[0.2,3;5.1,4.7;;%s;]"
 
 local function show_obituary_formspec(stack, player)

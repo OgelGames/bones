@@ -3,7 +3,7 @@ local S = core.get_translator("bones")
 
 local function add_to_hud(player, waypoint)
 	waypoint.id = player:hud_add({
-		type = "waypoint",
+		[core.features.hud_def_type_field and "type" or "hud_elem_type"] = "waypoint",
 		name = S("Bones"),
 		text = "m",
 		number = 0xFFFFFF,
