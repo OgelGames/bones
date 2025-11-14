@@ -9,7 +9,7 @@ bones_mode (Bones mode) enum bones bones,entity,drop,keep
 # - entity: Store items in an bone entity.
 # - drop: Drop items on the ground.
 # - keep: Player keeps items.
-Both 'entity' and 'drop' modes fallback to 'keep'.
+# Both 'entity' and 'drop' modes fallback to 'keep'.
 bones_fallback_mode (Bones mode) enum entity entity,drop,keep
 
 # The time in seconds after which the bones of a dead player can be looted by everyone.
