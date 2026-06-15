@@ -16,7 +16,7 @@ local function show_obituary_formspec(stack, player)
 	local meta = stack:get_meta()
 	local name = meta:get_string("name")
 	local time = os.date("%Y/%m/%d  %H:%M:%S", tonumber(meta:get_string("time")) or 0)
-	local pos = core.string_to_pos(meta:get_string("pos")) or vector.zero
+	local pos = core.string_to_pos(meta:get_string("pos")) or vector.zero()
 	local items = meta:get_string("items")
 	local fs = formspec:format(name, time, pos.x, pos.y, pos.z, items)
 	core.show_formspec(player:get_player_name(), "obituary", fs)
